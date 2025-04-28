@@ -14,7 +14,7 @@ class CommandState(State):
         if event.key == pygame.K_RETURN:
             func = self.KEYMAP.get(self.command)
             if func: func()
-            NormalMode(self)
+            NormalMode(self.game)
 
         if event.type == pygame.KEYDOWN:
             self.command += event.unicode
