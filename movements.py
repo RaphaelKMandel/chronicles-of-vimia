@@ -41,6 +41,27 @@ class Dollar(Movement):
 
 NormalMode.KEYMAP["$"] = Dollar
 
+
+class FindForward(State):
+    def __init__(self, game):
+        super().__init__(game)
+        self.char = ""
+
+    def handle_input(self, event):
+        print("Find Forward", self.char, event)
+        self.char = event.unicode
+        self.game.buffer.col = self.compute_move()
+        self.game.state = NormalMode(self.game)
+
+    def compute_move(self):
+        if self.char in self.game.buffer.text[self.game.buffer.col+1:]:
+            return self.game.buffer.col + 1 + self.game.buffer.text[self.game.buffer.col+1:].index(self.char)
+
+        return self.game.buffer.col
+
+
+NormalMode.KEYMAP["f"] = FindForward
+
 # class WordMovement(Movement):
 #     def __init__(self, game):
 #         self.game = game
