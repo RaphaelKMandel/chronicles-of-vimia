@@ -2,7 +2,7 @@ from constants import *
 
 
 class Movement:
-    def __ini__(self, game):
+    def __init__(self, game):
         self.game = game
         game.buffer.col = self.compute_move()
 
@@ -12,7 +12,7 @@ class Movement:
 
 class Right(Movement):
     def compute_move(self):
-        return min(len(self.game.buffer.text), self.game.buffer.col + 1)
+        return min(len(self.game.buffer.text) - 1, self.game.buffer.col + 1)
 
 
 NormalMode.KEYMAP["l"] = Right
