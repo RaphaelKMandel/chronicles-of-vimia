@@ -2,86 +2,54 @@ from constants import *
 
 
 class Movement:
-    def __init__(self, game):
-        self.game = game
-        game.buffer.col = self.compute_move()
+    def __init__(self, parent):
+        lines = EDITOR.buffer.lines
+        row = EDITOR.buffer.row
+        col = EDITOR.buffer.col
+        self.execute(lines, row, col)
 
-    def compute_move(self):
-        return self.game.buffer.col
+    def execute(self, lines, row, col):
+        EDITOR.buffer.col = self.evaluate(lines, row, col)
+
+    @staticmethod
+    def evaluate(lines, row, col):
+        return EDITOR.buffer.row, EDITOR.buffer.col
 
 
 class Right(Movement):
-    def compute_move(self):
-        return min(len(self.game.buffer.text) - 1, self.game.buffer.col + 1)
-
-
-NormalMode.KEYMAP["l"] = Right
+    def evaluate(self, lines, row, col):
+        text = lines[row]
+        return min(len(text) - 1, col + 1)
 
 
 class Left(Movement):
-    def compute_move(self):
-        return max(0, self.game.buffer.col - 1)
-
-
-NormalMode.KEYMAP["h"] = Left
+    def evaluate(self, lines, row, col):
+        return max(0, col - 1)
 
 
 class Zero(Movement):
-    def compute_move(self):
+    def evaluate(self, lines, row, col):
         return 0
 
 
-NormalMode.KEYMAP["0"] = Zero
+class Carrot(Movement):
+    def evaluate(self, lines, row, col):
+        for n, char in enumerate(lines[row]):
+            if char != " ":
+                return n
+
+        return None
 
 
 class Dollar(Movement):
-    def compute_move(self):
-        return len(self.game.buffer.text) - 1
+    def evaluate(self, lines, row, col):
+        text = lines[row]
+        return len(text) - 1
 
 
-NormalMode.KEYMAP["$"] = Dollar
-
-
-class FindForward(State):
-    def __init__(self, game):
-        super().__init__(game)
-        self.char = ""
-
-    def handle_input(self, event):
-        print("Find Forward", self.char, event)
-        self.char = event.unicode
-        self.game.buffer.col = self.compute_move()
-        self.game.state = NormalMode(self.game)
-
-    def compute_move(self):
-        if self.char in self.game.buffer.text[self.game.buffer.col+1:]:
-            return self.game.buffer.col + 1 + self.game.buffer.text[self.game.buffer.col+1:].index(self.char)
-
-        return self.game.buffer.col
-
-
-NormalMode.KEYMAP["f"] = FindForward
-
-# class WordMovement(Movement):
-#     def __init__(self, game):
-#         self.game = game
-#         self.buffer = game.buffer
-#         self.text = game.buffer.text
-#         self.col = game.buffer.col
-#         self.game.buffer.col = self.find_next_word()
-#
-#     def find_next_word(self):
-#         col = self.find_next_boundary()
-#
-#
-#         for end, char in enumerate(text[col:], start=col):
-#             if char in {" ", "["}:
-#                 return end + 1
-#
-#     def find_next_boundary(self):
-#         for col, char in enumerate(self.text[self.col:], start=self.col):
-#             if char == " ":
-#                 return col
-#
-#
-# NormalMode.KEYMAP["w"] = WordMovement
+Normal.KEYMAP["l"] = Right
+Normal.KEYMAP["h"] = Left
+Normal.KEYMAP["0"] = Zero
+Normal.KEYMAP["$"] = Dollar
+Normal.KEYMAP["^"] = Carrot
+Normal.KEYMAP["_"] = Carrot

@@ -1,8 +1,11 @@
 # Vim Game
 
+
 A typing tutor game that uses Vim motions to edit falling text strings. The game helps you practice both typing and Vim commands in a fun, interactive way.
 
 ## Setup
+
+1. Install the bundled Agave Nerd Font (Optional)
 
 1. Install the required dependencies:
 ```bash
