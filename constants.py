@@ -27,10 +27,6 @@ class Buffer:
         self.lines = lines
         self.row, self.col = row, col
 
-    @property
-    def text(self):
-        return "\n".join(self.lines)
-
     def draw(self):
         # Draw text
         for n, line in enumerate(self.lines):
@@ -40,15 +36,15 @@ class Buffer:
 
             if self.row == n:
                 # Draw cursor as a block
-                char_width = FONT.size(self.text[self.col])[0]
-                cursor_x = text_rect.left + FONT.size(self.text[:self.col])[0]
+                char_width = FONT.size(line[self.col])[0]
+                cursor_x = text_rect.left + FONT.size(line[:self.col])[0]
                 cursor_rect = pygame.Rect(cursor_x, text_rect.top, char_width, text_rect.height)
 
                 # Draw the cursor
                 pygame.draw.rect(EDITOR.screen, CURSOR_COLOR, cursor_rect)
 
                 # Draw the character under the cursor in a different color
-                char_surface = FONT.render(self.text[self.col], True, CURSOR_TEXT_COLOR)
+                char_surface = FONT.render(self.lines[self.row][self.col], True, CURSOR_TEXT_COLOR)
                 EDITOR.screen.blit(char_surface, (cursor_x, text_rect.top))
 
     def test(self):
@@ -63,6 +59,7 @@ class Editor:
         self.buffer = None
         self.state = None
         self.running = True
+        self.last_operation = None
         self.last_search = None
         self.count = 0
         self.credit = 100
@@ -80,7 +77,7 @@ class Editor:
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN and not event.unicode == "":
                 self.count += 1
-                print(event, self.count)
+                print(event, self.count, self.credit - self.count)
                 self.state.handle_input(event)
 
     def run(self):

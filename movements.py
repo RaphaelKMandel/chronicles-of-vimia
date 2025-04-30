@@ -27,6 +27,38 @@ class Left(Movement):
         return max(0, col - 1)
 
 
+class Down(Movement):
+    def evaluate(self, lines, row, col):
+        if row == len(lines) - 1:
+            return None, None
+
+        new_row = row + 1
+        new_col = min(len(lines[new_row]) - 1, col)
+        return new_row, new_col
+
+    def execute(self, lines, row, col):
+        new_row, new_col = self.evaluate(lines, row, col)
+        if new_row is not None:
+            EDITOR.buffer.row = new_row
+            EDITOR.buffer.col = new_col
+
+
+class Up(Movement):
+    def evaluate(self, lines, row, col):
+        if row == 0:
+            return None, None
+
+        new_row = row - 1
+        new_col = min(len(lines[new_row]) - 1, col)
+        return new_row, new_col
+
+    def execute(self, lines, row, col):
+        new_row, new_col = self.evaluate(lines, row, col)
+        if new_row is not None:
+            EDITOR.buffer.row = new_row
+            EDITOR.buffer.col = new_col
+
+
 class Zero(Movement):
     def evaluate(self, lines, row, col):
         return 0
@@ -53,3 +85,6 @@ Normal.KEYMAP["0"] = Zero
 Normal.KEYMAP["$"] = Dollar
 Normal.KEYMAP["^"] = Carrot
 Normal.KEYMAP["_"] = Carrot
+
+Normal.KEYMAP["j"] = Down
+Normal.KEYMAP["k"] = Up

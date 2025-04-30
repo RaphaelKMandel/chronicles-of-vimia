@@ -18,7 +18,6 @@ class Find:
         if new_col is not None:
             EDITOR.last_search = self
             EDITOR.buffer.col = new_col
-        print(EDITOR.last_search)
 
     def forward_search(self, lines, row, col):
         text = lines[row]
@@ -65,18 +64,18 @@ class FindState(State):
 
     def handle_input(self, event):
         self.movement.char = event.unicode
-        self.movement.execute([EDITOR.buffer.text], EDITOR.buffer.row, EDITOR.buffer.col)
+        self.movement.execute(EDITOR.buffer.lines, EDITOR.buffer.row, EDITOR.buffer.col)
         self.deactivate()
 
 
 class RepeatFindForward:
     def __init__(self, parent):
-        EDITOR.last_search.execute([EDITOR.buffer.text], EDITOR.buffer.row, EDITOR.buffer.col, reversed=False)
+        EDITOR.last_search.execute(EDITOR.buffer.lines, EDITOR.buffer.row, EDITOR.buffer.col, reversed=False)
 
 
 class RepeatFindBackward:
     def __init__(self, parent):
-        EDITOR.last_search.execute([EDITOR.buffer.text], EDITOR.buffer.row, EDITOR.buffer.col, reversed=True)
+        EDITOR.last_search.execute(EDITOR.buffer.lines, EDITOR.buffer.row, EDITOR.buffer.col, reversed=True)
 
 
 Normal.KEYMAP["f"] = FindForward
