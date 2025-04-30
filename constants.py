@@ -27,6 +27,14 @@ class Buffer:
         self.lines = lines
         self.row, self.col = row, col
 
+    @property
+    def col(self):
+        return min(self._col, len(self.lines[self.row]) - 1)
+
+    @col.setter
+    def col(self, value):
+        self._col = value
+
     def draw(self):
         # Draw text
         for n, line in enumerate(self.lines):
@@ -127,12 +135,13 @@ class State:
     def draw(self):
         text_surface = FONT.render(self.__class__.__name__, True, TEXT_COLOR)
         text_rect = text_surface.get_rect()
-        text_rect.bottomleft = (WIDTH-150, HEIGHT)
+        text_rect.bottomleft = (0, HEIGHT)
         EDITOR.screen.blit(text_surface, text_rect)
 
 
 class Normal(State):
     KEYMAP = {}
+
     def deactivate(self):
         pass
 
@@ -143,6 +152,21 @@ class Insert(State):
 
 class Visual(State):
     KEYMAP = {}
+
+
+class Movement:
+    def __init__(self, parent):
+        lines = EDITOR.buffer.lines
+        row = EDITOR.buffer.row
+        col = EDITOR.buffer.col
+        self.execute(lines, row, col)
+
+    def execute(self, lines, row, col):
+        raise NotImplementedError(f"execute() method of Movement is not implemented.")
+
+    @staticmethod
+    def evaluate(lines, row, col):
+        raise NotImplementedError(f"evaluate() method of Movement is not implemented.")
 
 
 EDITOR = Editor()

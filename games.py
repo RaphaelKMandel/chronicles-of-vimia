@@ -1,6 +1,7 @@
 from constants import *
 from commands import Command
-from movements import *
+from horizontal_movements import *
+from vertical_movements import *
 from finds import *
 
 if __name__ == "__main__":

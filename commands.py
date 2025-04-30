@@ -34,7 +34,6 @@ class Command(State):
         EDITOR.write()
 
     def draw(self):
-        super().draw()
         text_surface = FONT.render(f":{self.command}", True, TEXT_COLOR)
         text_rect = text_surface.get_rect()
         text_rect.bottomleft = (0, HEIGHT)
