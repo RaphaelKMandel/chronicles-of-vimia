@@ -6,6 +6,9 @@ from dep.main import LINE_HEIGHT
 # Initialize pygame
 pygame.init()
 
+# Repeat keys
+pygame.key.set_repeat(500, 50)
+
 # Game dimensions
 WIDTH, HEIGHT = 800, 200
 FPS = 60
