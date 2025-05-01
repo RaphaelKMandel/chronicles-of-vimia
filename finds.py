@@ -8,28 +8,26 @@ class Find:
         self.forward = forward
         self.offset = offset
 
-    def execute(self, lines, row, col, reversed=False):
+    def execute(self, reversed=False):
         forward = self.forward if not reversed else not self.forward
         if forward:
-            new_col = self.forward_search(lines, row, col)
+            new_col = self.forward_search(EDITOR.buffer)
         else:
-            new_col = self.backward_search(lines, row, col)
+            new_col = self.backward_search(EDITOR.buffer)
 
         if new_col is not None:
             EDITOR.last_search = self
             EDITOR.buffer.col = new_col
 
-    def forward_search(self, lines, row, col):
-        text = lines[row]
-        for col, char in enumerate(text[col + 1 + self.offset:], start=col + 1 + self.offset):
+    def forward_search(self, buffer):
+        for col, char in enumerate(buffer.line[buffer.col + 1 + self.offset:], start=buffer.col + 1 + self.offset):
             if char == self.char:
                 return col - self.offset
 
         return None
 
-    def backward_search(self, lines, row, col):
-        text = lines[row]
-        for col, char in zip(reversed(range(col - self.offset)), reversed(text[:col-self.offset])):
+    def backward_search(self, buffer):
+        for col, char in zip(reversed(range(buffer.col - self.offset)), reversed(buffer.line[:buffer.col-self.offset])):
             if char == self.char:
                 return col + self.offset
 
@@ -65,18 +63,18 @@ class FindState(State):
 
     def handle_input(self, event):
         self.movement.char = event.unicode
-        self.movement.execute(EDITOR.buffer.lines, EDITOR.buffer.row, EDITOR.buffer.col)
+        self.movement.execute()
         self.deactivate()
 
 
 class RepeatFindForward:
     def __init__(self, parent):
-        EDITOR.last_search.execute(EDITOR.buffer.lines, EDITOR.buffer.row, EDITOR.buffer.col, reversed=False)
+        EDITOR.last_search.execute(reversed=False)
 
 
 class RepeatFindBackward:
     def __init__(self, parent):
-        EDITOR.last_search.execute(EDITOR.buffer.lines, EDITOR.buffer.row, EDITOR.buffer.col, reversed=True)
+        EDITOR.last_search.execute(reversed=True)
 
 
 NormalMode.KEYMAP["f"] = FindForward

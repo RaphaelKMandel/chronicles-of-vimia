@@ -2,29 +2,28 @@ from constants import *
 
 
 class HorizontalMovement(Movement):
-    def execute(self, lines, row, col):
-        EDITOR.buffer.col = self.evaluate(lines, row, col)
+    def execute(self):
+        EDITOR.buffer.col = self.evaluate(EDITOR.buffer)
 
 
 class Right(HorizontalMovement):
-    def evaluate(self, lines, row, col):
-        text = lines[row]
-        return min(len(text) - 1, col + 1)
+    def evaluate(self, buffer):
+        return min(len(buffer.line) - 1, buffer.col + 1)
 
 
 class Left(HorizontalMovement):
-    def evaluate(self, lines, row, col):
-        return max(0, col - 1)
+    def evaluate(self, buffer):
+        return max(0, buffer.col - 1)
 
 
 class Zero(HorizontalMovement):
-    def evaluate(self, lines, row, col):
+    def evaluate(self, buffer):
         return 0
 
 
 class Carrot(HorizontalMovement):
-    def evaluate(self, lines, row, col):
-        for n, char in enumerate(lines[row]):
+    def evaluate(self, buffer):
+        for n, char in enumerate(buffer.line):
             if char != " ":
                 return n
 
@@ -32,9 +31,8 @@ class Carrot(HorizontalMovement):
 
 
 class Dollar(HorizontalMovement):
-    def evaluate(self, lines, row, col):
-        text = lines[row]
-        return len(text) - 1
+    def evaluate(self, buffer):
+        return len(buffer.line) - 1
 
 
 NormalMode.KEYMAP["l"] = Right

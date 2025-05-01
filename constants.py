@@ -68,7 +68,7 @@ class Buffer:
                 pygame.draw.rect(EDITOR.screen, CURSOR_COLOR, cursor_rect)
 
                 # Draw the character under the cursor in a different color
-                if isinstance(EDITOR.state, NormalMode):
+                if not isinstance(EDITOR.state, InsertMode):
                     char_surface = FONT.render(self.line[self.col], True, CURSOR_TEXT_COLOR)
                     EDITOR.screen.blit(char_surface, (cursor_x, text_rect.top))
 
@@ -195,16 +195,12 @@ class InsertMode(State):
 
 class Movement:
     def __init__(self, parent):
-        lines = EDITOR.buffer.lines
-        row = EDITOR.buffer.row
-        col = EDITOR.buffer.col
-        self.execute(lines, row, col)
+        self.execute()
 
-    def execute(self, lines, row, col):
+    def execute(self):
         raise NotImplementedError(f"execute() method of Movement is not implemented.")
 
-    @staticmethod
-    def evaluate(lines, row, col):
+    def evaluate(self, buffer):
         raise NotImplementedError(f"evaluate() method of Movement is not implemented.")
 
 
