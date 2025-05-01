@@ -3,7 +3,7 @@
 - [x] Rename Game to Editor?
 - [ ] Syntax Highlighting?
 - [ ] Coloring? Treat each char/word as its own class/color?
-- [ ] Render cursor in Modes directly
+- [ ] Render cursor in Modes directly; going to be required for visual mode
 - [ ] Insert mode saves inserted text as action
 - [ ] Make Action class?
 - [ ] 

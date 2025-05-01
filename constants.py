@@ -1,7 +1,6 @@
 import sys
 import pygame
 
-
 # Initialize pygame
 pygame.init()
 
@@ -85,7 +84,7 @@ class Editor:
         self.buffer = None
         self.state = None
         self.running = True
-        self.last_operation = None
+        self.last_action = None
         self.last_search = None
         self.count = 0
         self.credit = 100
@@ -169,7 +168,7 @@ class NormalMode(State):
 
 class InsertMode(State):
     KEYMAP = {}
-    NAME = "__INSERT__"
+    NAME = "-- INSERT --"
 
     def handle_input(self, event):
         if event.key == pygame.K_ESCAPE:
@@ -180,12 +179,12 @@ class InsertMode(State):
             line, col = EDITOR.buffer.line, EDITOR.buffer.col
             if col > 0:
                 EDITOR.buffer.col -= 1
-                EDITOR.buffer.line = line[:col-1] + line[col:]
+                EDITOR.buffer.line = line[:col - 1] + line[col:]
                 return
 
         if event.key == pygame.K_DELETE:
             line, col = EDITOR.buffer.line, EDITOR.buffer.col
-            EDITOR.buffer.line = line[:col] + line[col+1:]
+            EDITOR.buffer.line = line[:col] + line[col + 1:]
             return
 
         if event.unicode.isprintable():
@@ -208,5 +207,61 @@ class Movement:
     def evaluate(lines, row, col):
         raise NotImplementedError(f"evaluate() method of Movement is not implemented.")
 
+
+class Action:
+    def __init__(self, parent):
+        self.parent = parent
+        self.state = OperatorState(parent)
+
+    def deactivate(self):
+        EDITOR.state = self.parent
+        EDITOR.last_action = self
+
+
+class OperatorState(State):
+    KEYMAP = {}
+
+
+class Delete(Action):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.state.deactivate()
+        self.execute(EDITOR.buffer.lines, EDITOR.buffer.row, EDITOR.buffer.col)
+
+    def execute(self, lines, row, col):
+        line = EDITOR.buffer.line
+        EDITOR.buffer.line = line[:col]
+        if col < len(line) - 1:
+            EDITOR.buffer.line += line[col + 1:]
+
+        EDITOR.buffer.col = EDITOR.buffer.col
+        self.deactivate()
+
+
+class Backspace(Action):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.state.deactivate()
+        self.execute(EDITOR.buffer.lines, EDITOR.buffer.row, EDITOR.buffer.col)
+
+    def execute(self, lines, row, col):
+        line = EDITOR.buffer.line
+        EDITOR.buffer.line = line[:col-1] + line[col:]
+
+        EDITOR.buffer.col -= 1
+        self.deactivate()
+
+class Period:
+    def __init__(self, parent):
+        if EDITOR.last_action is not None:
+            lines = EDITOR.buffer.lines
+            row = EDITOR.buffer.row
+            col = EDITOR.buffer.col
+            EDITOR.last_action.execute(lines, row, col)
+
+
+NormalMode.KEYMAP["x"] = Delete
+NormalMode.KEYMAP["X"] = Backspace
+NormalMode.KEYMAP["."] = Period
 
 EDITOR = Editor()
