@@ -57,6 +57,7 @@ class FindBackwardTo(Find):
 
 
 class FindState(State):
+    NAME = NormalMode.NAME
     def __init__(self, parent, movement, forward=True):
         super().__init__(parent)
         self.movement = movement
@@ -78,12 +79,12 @@ class RepeatFindBackward:
         EDITOR.last_search.execute(EDITOR.buffer.lines, EDITOR.buffer.row, EDITOR.buffer.col, reversed=True)
 
 
-Normal.KEYMAP["f"] = FindForward
-Normal.KEYMAP["F"] = FindBackward
-Normal.KEYMAP["t"] = FindForwardTo
-Normal.KEYMAP["T"] = FindBackwardTo
-Normal.KEYMAP[";"] = RepeatFindForward
-Normal.KEYMAP[","] = RepeatFindBackward
+NormalMode.KEYMAP["f"] = FindForward
+NormalMode.KEYMAP["F"] = FindBackward
+NormalMode.KEYMAP["t"] = FindForwardTo
+NormalMode.KEYMAP["T"] = FindBackwardTo
+NormalMode.KEYMAP[";"] = RepeatFindForward
+NormalMode.KEYMAP[","] = RepeatFindBackward
 
 if __name__ == "__main__":
     pass

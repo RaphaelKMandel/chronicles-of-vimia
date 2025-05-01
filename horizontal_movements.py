@@ -37,9 +37,9 @@ class Dollar(HorizontalMovement):
         return len(text) - 1
 
 
-Normal.KEYMAP["l"] = Right
-Normal.KEYMAP["h"] = Left
-Normal.KEYMAP["0"] = Zero
-Normal.KEYMAP["$"] = Dollar
-Normal.KEYMAP["^"] = Carrot
-Normal.KEYMAP["_"] = Carrot
+NormalMode.KEYMAP["l"] = Right
+NormalMode.KEYMAP["h"] = Left
+NormalMode.KEYMAP["0"] = Zero
+NormalMode.KEYMAP["$"] = Dollar
+NormalMode.KEYMAP["^"] = Carrot
+NormalMode.KEYMAP["_"] = Carrot

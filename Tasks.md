@@ -2,6 +2,12 @@
 - [x] Game is global?
 - [x] Rename Game to Editor?
 - [ ] Syntax Highlighting?
+- [ ] Coloring? Treat each char/word as its own class/color?
+- [ ] Render cursor in Modes directly
+- [ ] Insert mode saves inserted text as action
+- [ ] Make Action class?
+- [ ] 
+
 
 # Approach
 - How to handle states/modes and operations

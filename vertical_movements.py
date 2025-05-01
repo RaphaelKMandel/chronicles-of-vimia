@@ -26,5 +26,5 @@ class Up(VerticalMovement):
         return new_row
 
 
-Normal.KEYMAP["j"] = Down
-Normal.KEYMAP["k"] = Up
+NormalMode.KEYMAP["j"] = Down
+NormalMode.KEYMAP["k"] = Up

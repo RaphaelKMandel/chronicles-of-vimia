@@ -40,4 +40,4 @@ class Command(State):
         EDITOR.screen.blit(text_surface, text_rect)
 
 
-Normal.KEYMAP[":"] = Command
+NormalMode.KEYMAP[":"] = Command
