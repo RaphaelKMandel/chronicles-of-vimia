@@ -1,7 +1,6 @@
 import sys
 import pygame
 
-from dep.main import LINE_HEIGHT
 
 # Initialize pygame
 pygame.init()
