@@ -10,6 +10,7 @@
 - Buffer class:
   - [x] method to determine x,y location given row,col
   - [ ] method to determine text inside/outside start finish
+  - [ ] give it a name, and allow navigation with :e <file> with tabs
 
 
 # Approach

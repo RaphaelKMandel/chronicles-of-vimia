@@ -109,6 +109,10 @@ class Editor:
 
     def handle_events(self):
         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.quit()
+                return
+
             if event.type == pygame.KEYDOWN and not event.unicode == "":
                 self.count += 1
                 print(event, self.count, self.credit - self.count)
