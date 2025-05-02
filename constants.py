@@ -23,7 +23,7 @@ FONT = pygame.font.SysFont("monospace", FONT_SIZE)
 if "agave" in pygame.font.get_fonts():
     FONT = pygame.font.SysFont("agave", FONT_SIZE)
 
-LINE_HEIGHT = FONT.get_linesize()
+CHAR_WIDTH, CHAR_HEIGHT = FONT.size(" ")
 
 
 class Child:
@@ -32,12 +32,18 @@ class Child:
 
 
 class Buffer:
-    def __init__(self, lines: list[str], row=0, col=0, x=0, y=0):
+    def __init__(self, lines: list[str], row=0, col=0, x=20, y=20):
         self.lines = lines
         self.row, self.col = row, col
         self.x, self.y = x, y
         self.undo_list = []
         self.redo_list = []
+
+    def get_coord(self, row, col):
+        return (
+            self.y + row * CHAR_HEIGHT,
+            self.x + col * CHAR_WIDTH
+        )
 
     @property
     def col(self):
@@ -57,7 +63,7 @@ class Buffer:
         self.lines[self.row] = value
 
     def get_topleft(self, row):
-        return self.x + 20, self.y + 20 + row * LINE_HEIGHT
+        return self.x, self.y + row * CHAR_HEIGHT
 
     def draw(self):
         # Draw text
@@ -65,22 +71,6 @@ class Buffer:
             text_surface = FONT.render(line, True, TEXT_COLOR)
             text_rect = text_surface.get_rect(topleft=self.get_topleft(n))
             EDITOR.screen.blit(text_surface, text_rect)
-
-            if self.row == n:
-                # Draw cursor as a block
-                char_width = FONT.size(line[0])[0]
-                if isinstance(EDITOR.state, InsertMode):
-                    char_width //= 4
-                cursor_x = text_rect.left + FONT.size(line[:self.col])[0]
-                cursor_rect = pygame.Rect(cursor_x, text_rect.top, char_width, text_rect.height)
-
-                # Draw the cursor
-                pygame.draw.rect(EDITOR.screen, CURSOR_COLOR, cursor_rect)
-
-                # Draw the character under the cursor in a different color
-                if not isinstance(EDITOR.state, InsertMode):
-                    char_surface = FONT.render(self.line[self.col], True, CURSOR_TEXT_COLOR)
-                    EDITOR.screen.blit(char_surface, (cursor_x, text_rect.top))
 
     def test(self):
         print("Testing buffer...")
@@ -172,6 +162,20 @@ class NormalMode(State):
     KEYMAP = {}
     NAME = "NORMAL"
 
+    def draw(self):
+        super().draw()
+
+        # Draw cursor as a block
+        top, left = EDITOR.buffer.get_coord(EDITOR.buffer.row, EDITOR.buffer.col)
+        cursor_rect = pygame.Rect(left, top, CHAR_WIDTH, CHAR_HEIGHT)
+
+        # Draw the cursor
+        pygame.draw.rect(EDITOR.screen, CURSOR_COLOR, cursor_rect)
+
+        # Draw the character under the cursor in a different color
+        char_surface = FONT.render(EDITOR.buffer.line[EDITOR.buffer.col], True, CURSOR_TEXT_COLOR)
+        EDITOR.screen.blit(char_surface, (left, top))
+
 
 class InsertMode(State):
     KEYMAP = {}
@@ -198,6 +202,16 @@ class InsertMode(State):
             line, col = EDITOR.buffer.line, EDITOR.buffer.col
             EDITOR.buffer.line = line[:col] + event.unicode + line[col:]
             EDITOR.buffer.col += 1
+
+    def draw(self):
+        super().draw()
+
+        # Draw cursor as a block
+        top, left = EDITOR.buffer.get_coord(EDITOR.buffer.row, EDITOR.buffer.col)
+        cursor_rect = pygame.Rect(left, top, CHAR_WIDTH // 4, CHAR_HEIGHT)
+
+        # Draw the cursor
+        pygame.draw.rect(EDITOR.screen, CURSOR_COLOR, cursor_rect)
 
 
 class Movement(Child):
