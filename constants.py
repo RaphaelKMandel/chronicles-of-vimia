@@ -28,6 +28,8 @@ class Buffer:
         self.lines = lines
         self.row, self.col = row, col
         self.x, self.y = x, y
+        self.undo_list = []
+        self.redo_list = []
 
     @property
     def col(self):
@@ -74,6 +76,11 @@ class Buffer:
 
     def test(self):
         print("Testing buffer...")
+
+    def copy(self):
+        return Buffer(self.lines.copy(), row=self.row, col=self.col)
+
+
 
 
 class Editor:
@@ -124,11 +131,16 @@ class Editor:
         self.buffer.test()
 
 
-class State:
+class Child:
+    def __init__(self, parent):
+        self.parent = parent
+
+
+class State(Child):
     NAME = "None"
 
     def __init__(self, parent=None):
-        self.parent = parent
+        super().__init__(parent)
         self.init()
         self.activate()
 
@@ -193,8 +205,9 @@ class InsertMode(State):
             EDITOR.buffer.col += 1
 
 
-class Movement:
+class Movement(Child):
     def __init__(self, parent):
+        super().__init__(parent)
         self.execute()
 
     def execute(self):
@@ -204,60 +217,79 @@ class Movement:
         raise NotImplementedError(f"evaluate() method of Movement is not implemented.")
 
 
-class Action:
-    def __init__(self, parent):
-        self.parent = parent
-        self.state = OperatorState(parent)
-
-    def deactivate(self):
+class Action(Child):
+    def activate(self):
+        EDITOR.buffer.undo_list.append(EDITOR.buffer.copy())
+        EDITOR.buffer.redo_list = []
+        self.execute()
         EDITOR.state = self.parent
         EDITOR.last_action = self
 
-
-class OperatorState(State):
-    KEYMAP = {}
+    def execute(self):
+        raise NotImplementedError(f"{__name__}() method of {__class__} is not implemented.")
 
 
 class Delete(Action):
     def __init__(self, parent):
         super().__init__(parent)
-        self.state.deactivate()
-        self.execute(EDITOR.buffer.lines, EDITOR.buffer.row, EDITOR.buffer.col)
+        self.activate()
 
-    def execute(self, lines, row, col):
-        line = EDITOR.buffer.line
-        EDITOR.buffer.line = line[:col]
-        if col < len(line) - 1:
-            EDITOR.buffer.line += line[col + 1:]
+    def execute(self):
+        buffer = EDITOR.buffer
+        line = buffer.line
+        new_line = line[:buffer.col]
+        if buffer.col < len(line) - 1:
+            new_line += line[buffer.col + 1:]
 
-        EDITOR.buffer.col = EDITOR.buffer.col
-        self.deactivate()
+        buffer.line = new_line
+        buffer.col = buffer.col  # Needed to reset column to current column
 
 
 class Backspace(Action):
     def __init__(self, parent):
         super().__init__(parent)
-        self.state.deactivate()
-        self.execute(EDITOR.buffer.lines, EDITOR.buffer.row, EDITOR.buffer.col)
+        self.activate()
 
-    def execute(self, lines, row, col):
-        line = EDITOR.buffer.line
-        EDITOR.buffer.line = line[:col-1] + line[col:]
+    def execute(self):
+        buffer = EDITOR.buffer
+        line = buffer.line
+        buffer.line = line[:buffer.col - 1] + line[buffer.col:]
 
-        EDITOR.buffer.col -= 1
-        self.deactivate()
+        buffer.col -= 1
 
-class Period:
+
+class Period(Action):
     def __init__(self, parent):
+        super().__init__(parent)
+        self.activate()
+
+    def execute(self):
         if EDITOR.last_action is not None:
-            lines = EDITOR.buffer.lines
-            row = EDITOR.buffer.row
-            col = EDITOR.buffer.col
-            EDITOR.last_action.execute(lines, row, col)
+            EDITOR.last_action.execute()
+
+
+class Undo:
+    def __init__(self, parent):
+        if EDITOR.buffer.undo_list:
+            EDITOR.buffer.redo_list.append(EDITOR.buffer.copy())
+            buffer = EDITOR.buffer.undo_list.pop()
+            EDITOR.buffer.lines = buffer.lines
+            EDITOR.buffer.row, EDITOR.buffer.col = buffer.row, buffer.col
+
+
+class Redo:
+    def __init__(self, parent):
+        if EDITOR.buffer.redo_list:
+            EDITOR.buffer.undo_list.append(EDITOR.buffer.copy())
+            buffer = EDITOR.buffer.redo_list.pop()
+            EDITOR.buffer.lines = buffer.lines
+            EDITOR.buffer.row, EDITOR.buffer.col = buffer.row, buffer.col
 
 
 NormalMode.KEYMAP["x"] = Delete
 NormalMode.KEYMAP["X"] = Backspace
 NormalMode.KEYMAP["."] = Period
+NormalMode.KEYMAP["u"] = Undo
+NormalMode.KEYMAP["U"] = Redo
 
 EDITOR = Editor()
