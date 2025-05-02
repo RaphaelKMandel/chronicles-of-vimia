@@ -2,16 +2,13 @@ from constants import *
 
 
 class Command(State):
+    KEYMAP = {
+        "q": EDITOR.quit,
+        "w": EDITOR.write
+    }
     def __init__(self, parent):
         super().__init__(parent)
         self.command = ""
-
-    def init(self):
-        """Initialize State Keybinds."""
-        self.KEYMAP = {
-            "q": self.quit,
-            "w": self.write
-        }
 
     def handle_input(self, event):
         if event.key == pygame.K_RETURN:

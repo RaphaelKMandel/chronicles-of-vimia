@@ -1,12 +1,33 @@
 from constants import *
 
 
-class Find:
+class FindState(State):
+    NAME = NormalMode.NAME
+
+    def __init__(self, parent, forward=True):
+        super().__init__(parent)
+        self.forward = forward
+
+    def handle_input(self, event):
+        self.parent.char = event.unicode
+        self.deactivate()
+
+
+class Find(Movement):
     def __init__(self, parent, forward, offset):
-        self.state = FindState(parent, self)
+        super().__init__(parent)
         self.char = ""
         self.forward = forward
         self.offset = offset
+        self.state = FindState(self)
+
+    def activate(self):
+        EDITOR.last_search = self
+        self.execute()
+        self.deactivate()
+
+    def deactivate(self):
+        self.parent.activate()
 
     def execute(self, reversed=False):
         forward = self.forward if not reversed else not self.forward
@@ -16,7 +37,6 @@ class Find:
             new_col = self.backward_search(EDITOR.buffer)
 
         if new_col is not None:
-            EDITOR.last_search = self
             EDITOR.buffer.col = new_col
 
     def forward_search(self, buffer):
@@ -27,7 +47,8 @@ class Find:
         return None
 
     def backward_search(self, buffer):
-        for col, char in zip(reversed(range(buffer.col - self.offset)), reversed(buffer.line[:buffer.col-self.offset])):
+        for col, char in zip(reversed(range(buffer.col - self.offset)),
+                             reversed(buffer.line[:buffer.col - self.offset])):
             if char == self.char:
                 return col + self.offset
 
@@ -52,19 +73,6 @@ class FindForwardTo(Find):
 class FindBackwardTo(Find):
     def __init__(self, parent):
         super().__init__(parent, forward=False, offset=1)
-
-
-class FindState(State):
-    NAME = NormalMode.NAME
-    def __init__(self, parent, movement, forward=True):
-        super().__init__(parent)
-        self.movement = movement
-        self.forward = forward
-
-    def handle_input(self, event):
-        self.movement.char = event.unicode
-        self.movement.execute()
-        self.deactivate()
 
 
 class RepeatFindForward:

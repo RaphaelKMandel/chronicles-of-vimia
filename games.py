@@ -4,6 +4,9 @@ from horizontal_movements import *
 from vertical_movements import *
 from inserts import *
 from finds import *
+from mementos import *
+from instant_actions import *
+
 
 if __name__ == "__main__":
     lines = [

@@ -5,8 +5,11 @@
 - [ ] Coloring? Treat each char/word as its own class/color?
 - [ ] Render cursor in Modes directly; going to be required for visual mode
 - [ ] Insert mode saves inserted text as action
-- [ ] Make Action class?
-- [ ] Undo/Redo?
+- [x] Make Action class?
+- [x] Undo/Redo?
+- Buffer class:
+  - [ ] method to determine x,y location given row,col
+  - [ ] method to determine text inside/outside start finish
 
 
 # Approach

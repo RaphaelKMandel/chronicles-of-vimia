@@ -1,5 +1,6 @@
 import sys
 import pygame
+from abc import ABC, abstractmethod
 
 # Initialize pygame
 pygame.init()
@@ -21,6 +22,11 @@ CURSOR_TEXT_COLOR = (0, 0, 0)  # Text color when under cursor
 # Font
 FONT = pygame.font.SysFont("agave", FONT_SIZE)
 LINE_HEIGHT = FONT.get_linesize()
+
+
+class Child:
+    def __init__(self, parent):
+        self.parent = parent
 
 
 class Buffer:
@@ -81,8 +87,6 @@ class Buffer:
         return Buffer(self.lines.copy(), row=self.row, col=self.col)
 
 
-
-
 class Editor:
     def __init__(self):
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -98,6 +102,12 @@ class Editor:
 
     def get_buffer(self, text):
         return Buffer(text)
+
+    def draw_command_line(self, text):
+        text_surface = FONT.render(text, True, TEXT_COLOR)
+        text_rect = text_surface.get_rect()
+        text_rect.bottomleft = (0, HEIGHT)
+        EDITOR.screen.blit(text_surface, text_rect)
 
     def draw(self):
         self.screen.fill(BACKGROUND_COLOR)
@@ -131,30 +141,19 @@ class Editor:
         self.buffer.test()
 
 
-class Child:
-    def __init__(self, parent):
-        self.parent = parent
-
-
 class State(Child):
     NAME = "None"
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.init()
         self.activate()
-
-    def init(self):
-        pass
 
     def activate(self):
         EDITOR.state = self
 
     def deactivate(self):
-        if self.parent is None:
-            raise ValueError(f"Cannot deactivate {self}; no parent state exists")
-
-        self.parent.activate()
+        if self.parent is not None:
+            self.parent.activate()
 
     def handle_input(self, event):
         if event.unicode in self.KEYMAP:
@@ -164,18 +163,12 @@ class State(Child):
             self.deactivate()
 
     def draw(self):
-        text_surface = FONT.render(self.NAME, True, TEXT_COLOR)
-        text_rect = text_surface.get_rect()
-        text_rect.bottomleft = (0, HEIGHT)
-        EDITOR.screen.blit(text_surface, text_rect)
+        EDITOR.draw_command_line(self.NAME)
 
 
 class NormalMode(State):
     KEYMAP = {}
     NAME = "NORMAL"
-
-    def deactivate(self):
-        pass
 
 
 class InsertMode(State):
@@ -206,15 +199,17 @@ class InsertMode(State):
 
 
 class Movement(Child):
+    def execute(self):
+        pass
+
+    def evaluate(self, buffer):
+        pass
+
+
+class InstantMovement(Movement):
     def __init__(self, parent):
         super().__init__(parent)
         self.execute()
-
-    def execute(self):
-        raise NotImplementedError(f"execute() method of Movement is not implemented.")
-
-    def evaluate(self, buffer):
-        raise NotImplementedError(f"evaluate() method of Movement is not implemented.")
 
 
 class Action(Child):
@@ -226,70 +221,7 @@ class Action(Child):
         EDITOR.last_action = self
 
     def execute(self):
-        raise NotImplementedError(f"{__name__}() method of {__class__} is not implemented.")
+        pass
 
-
-class Delete(Action):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.activate()
-
-    def execute(self):
-        buffer = EDITOR.buffer
-        line = buffer.line
-        new_line = line[:buffer.col]
-        if buffer.col < len(line) - 1:
-            new_line += line[buffer.col + 1:]
-
-        buffer.line = new_line
-        buffer.col = buffer.col  # Needed to reset column to current column
-
-
-class Backspace(Action):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.activate()
-
-    def execute(self):
-        buffer = EDITOR.buffer
-        line = buffer.line
-        buffer.line = line[:buffer.col - 1] + line[buffer.col:]
-
-        buffer.col -= 1
-
-
-class Period(Action):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.activate()
-
-    def execute(self):
-        if EDITOR.last_action is not None:
-            EDITOR.last_action.execute()
-
-
-class Undo:
-    def __init__(self, parent):
-        if EDITOR.buffer.undo_list:
-            EDITOR.buffer.redo_list.append(EDITOR.buffer.copy())
-            buffer = EDITOR.buffer.undo_list.pop()
-            EDITOR.buffer.lines = buffer.lines
-            EDITOR.buffer.row, EDITOR.buffer.col = buffer.row, buffer.col
-
-
-class Redo:
-    def __init__(self, parent):
-        if EDITOR.buffer.redo_list:
-            EDITOR.buffer.undo_list.append(EDITOR.buffer.copy())
-            buffer = EDITOR.buffer.redo_list.pop()
-            EDITOR.buffer.lines = buffer.lines
-            EDITOR.buffer.row, EDITOR.buffer.col = buffer.row, buffer.col
-
-
-NormalMode.KEYMAP["x"] = Delete
-NormalMode.KEYMAP["X"] = Backspace
-NormalMode.KEYMAP["."] = Period
-NormalMode.KEYMAP["u"] = Undo
-NormalMode.KEYMAP["U"] = Redo
 
 EDITOR = Editor()

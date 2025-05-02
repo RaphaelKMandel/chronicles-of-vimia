@@ -1,7 +1,7 @@
 from constants import *
 
 
-class HorizontalMovement(Movement):
+class HorizontalMovement(InstantMovement):
     def execute(self):
         EDITOR.buffer.col = self.evaluate(EDITOR.buffer)
 

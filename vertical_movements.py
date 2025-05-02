@@ -1,7 +1,7 @@
 from constants import *
 
 
-class VerticalMovement(Movement):
+class VerticalMovement(InstantMovement):
     def execute(self):
         new_row = self.evaluate(EDITOR.buffer)
         if new_row is not None:
