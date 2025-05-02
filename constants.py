@@ -1,6 +1,5 @@
 import sys
 import pygame
-from abc import ABC, abstractmethod
 
 # Initialize pygame
 pygame.init()
@@ -20,7 +19,10 @@ CURSOR_COLOR = (255, 255, 255)
 CURSOR_TEXT_COLOR = (0, 0, 0)  # Text color when under cursor
 
 # Font
-FONT = pygame.font.SysFont("agave", FONT_SIZE)
+FONT = pygame.font.SysFont("monospace", FONT_SIZE)
+if "agave" in pygame.font.get_fonts():
+    FONT = pygame.font.SysFont("agave", FONT_SIZE)
+
 LINE_HEIGHT = FONT.get_linesize()
 
 
