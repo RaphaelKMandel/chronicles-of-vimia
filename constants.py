@@ -1,5 +1,6 @@
 import sys
 import pygame
+import difflib
 
 # Initialize pygame
 pygame.init()
@@ -13,6 +14,9 @@ FPS = 60
 FONT_SIZE = 32
 
 # Colors
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
 TEXT_COLOR = (255, 255, 255)
 BACKGROUND_COLOR = (0, 0, 0)
 CURSOR_COLOR = (255, 255, 255)
@@ -31,8 +35,95 @@ class Child:
         self.parent = parent
 
 
+class Line:
+    COLORS = {
+        "insert": GREEN,
+        "equal": WHITE,
+        "delete": RED
+    }
+
+    def __len__(self):
+        return len(self.text)
+
+    def __getitem__(self, item):
+        return self.text[item]
+
+    def __init__(self, text, target):
+        self.augmented = ""
+        self.map = []
+        self.words = []
+        self.target = target
+        self.text = text
+
+    def is_solved(self):
+        return self.text == self.target
+
+    @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, value):
+        self._text = value
+        self.update()
+
+    def update(self):
+        self.words = self.get_diff()
+        self.augmented = "".join([string for _, string in self.words])
+        self.get_map()
+
+    def get_map(self):
+        self.map = [None] * (len(self.text) + 2)
+        n1 = n2 = 0
+        for word in self.words:
+            if word[0] in {"equal", "delete"}:
+                for _ in word[1]:
+                    self.map[n1] = n2
+                    n1 += 1
+                    n2 += 1
+
+            else:
+                n2 += len(word[1])
+
+        self.map[n1] = n2
+        self.map[n1+1] = n2+1
+
+
+    def get_diff(self):
+        words = []
+        x = difflib.SequenceMatcher(a=self.text, b=self.target).get_opcodes()
+        for op, s1, f1, s2, f2 in x:
+            if op == "replace":
+                words.append(
+                    ("delete", self.text[s1:f1])
+                )
+                words.append(
+                    ("insert", self.target[s2:f2])
+                )
+            else:
+                words.append(
+                    (op, self.target[s2:f2])
+                )
+
+        return words
+
+    def get_coord(self, row, col):
+        return CHAR_WIDTH * col, CHAR_HEIGHT * row
+
+    def get_x_coord(self, col):
+        return CHAR_WIDTH * self.map[col]
+
+    def draw(self, x, y):
+        col = 0
+        for op, string in self.words:
+            text_surface = FONT.render(string, True, Line.COLORS[op])
+            text_rect = text_surface.get_rect(topleft=(x + CHAR_WIDTH * col, y))
+            EDITOR.screen.blit(text_surface, text_rect)
+            col += len(string)
+
+
 class Buffer:
-    def __init__(self, lines: list[str], row=0, col=0, x=20, y=20):
+    def __init__(self, lines: list[Line], row=0, col=0, x=20, y=20):
         self.lines = lines
         self.row, self.col = row, col
         self.x, self.y = x, y
@@ -42,12 +133,12 @@ class Buffer:
     def get_coord(self, row, col):
         return (
             self.y + row * CHAR_HEIGHT,
-            self.x + col * CHAR_WIDTH
+            self.x + self.lines[row].map[col] * CHAR_WIDTH
         )
 
     @property
     def col(self):
-        max_col = len(self.line) - 1 if isinstance(EDITOR.state, NormalMode) else len(self.line)
+        max_col = EDITOR.state.max_col()
         return min(self._col, max_col)
 
     @col.setter
@@ -56,11 +147,11 @@ class Buffer:
 
     @property
     def line(self):
-        return self.lines[self.row]
+        return self.lines[self.row].text
 
     @line.setter
     def line(self, value):
-        self.lines[self.row] = value
+        self.lines[self.row].text = value
 
     def get_topleft(self, row):
         return self.x, self.y + row * CHAR_HEIGHT
@@ -68,12 +159,18 @@ class Buffer:
     def draw(self):
         # Draw text
         for n, line in enumerate(self.lines):
-            text_surface = FONT.render(line, True, TEXT_COLOR)
-            text_rect = text_surface.get_rect(topleft=self.get_topleft(n))
-            EDITOR.screen.blit(text_surface, text_rect)
+            line.draw(self.x, self.y + CHAR_HEIGHT * n)
+
+        self.y += 0.1
 
     def test(self):
         print("Testing buffer...")
+        if all([line.is_solved() for line in self.lines]):
+            EDITOR.credit += 100
+            print("Solved!")
+
+        else:
+            print("Not solved!")
 
     def copy(self):
         return Buffer(self.lines.copy(), row=self.row, col=self.col)
@@ -92,8 +189,11 @@ class Editor:
         self.count = 0
         self.credit = 100
 
-    def get_buffer(self, text):
-        return Buffer(text)
+    def get_buffer(self, lines, targets=None):
+        if targets is None:
+            return Buffer([Line(line) for line in lines])
+
+        return Buffer([Line(line, target) for line, target in zip(lines, targets)])
 
     def draw_command_line(self, text):
         text_surface = FONT.render(text, True, TEXT_COLOR)
@@ -166,6 +266,9 @@ class NormalMode(State):
     KEYMAP = {}
     NAME = "NORMAL"
 
+    def max_col(self):
+        return len(EDITOR.buffer.line)
+
     def draw(self):
         super().draw()
 
@@ -184,6 +287,9 @@ class NormalMode(State):
 class InsertMode(State):
     KEYMAP = {}
     NAME = "-- INSERT --"
+
+    def max_col(self):
+        return len(EDITOR.buffer.line) + 1
 
     def handle_input(self, event):
         if event.key == pygame.K_ESCAPE:

@@ -1,9 +1,7 @@
 from constants import *
 
 
-class FindState(State):
-    NAME = NormalMode.NAME
-
+class FindState(NormalMode):
     def __init__(self, parent, forward=True):
         super().__init__(parent)
         self.forward = forward

@@ -2,7 +2,7 @@
 - [x] Game is global?
 - [x] Rename Game to Editor?
 - [ ] Syntax Highlighting?
-- [ ] Coloring? Treat each char/word as its own class/color?
+- [x] Coloring? Treat each char/word as its own class/color?
 - [x] Render cursor in Modes directly; going to be required for visual mode
 - [ ] Insert mode saves inserted text as action
 - [x] Make Action class?
@@ -11,6 +11,10 @@
   - [x] method to determine x,y location given row,col
   - [ ] method to determine text inside/outside start finish
   - [ ] give it a name, and allow navigation with :e <file> with tabs
+- [ ] Arcade vs Campaign mode
+- [ ] Buffer spawner class
+- [ ] Change Action class to Change class?
+- [ ] Make demo file to demonstrate concept
 
 
 # Approach

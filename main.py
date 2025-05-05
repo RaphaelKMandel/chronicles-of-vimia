@@ -10,9 +10,14 @@ from instant_actions import *
 
 if __name__ == "__main__":
     lines = [
-        "This is (the) sample text(s).",
-        "    Second line.",
-        "Third line is some length?"
+        "class Foo:",
+        "    def foo(self, x):",
+        "       return x + 1"
     ]
-    EDITOR.buffer = EDITOR.get_buffer(lines)
+    test_lines = [
+        "class Foo:",
+        "    def foo(self):",
+        "       return self.x + 1"
+    ]
+    EDITOR.buffer = EDITOR.get_buffer(lines, test_lines)
     EDITOR.run()
