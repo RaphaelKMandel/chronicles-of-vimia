@@ -1,6 +1,7 @@
 import sys
 import pygame
-import difflib
+
+from diffs import get_diff
 
 # Initialize pygame
 pygame.init()
@@ -68,7 +69,7 @@ class Line:
         self.update()
 
     def update(self):
-        self.words = self.get_diff()
+        self.words = get_diff(self.text, self.target)
         self.augmented = "".join([string for _, string in self.words])
         self.get_map()
 
@@ -86,26 +87,6 @@ class Line:
                 n2 += len(word[1])
 
         self.map[n1] = n2
-        self.map[n1+1] = n2+1
-
-
-    def get_diff(self):
-        words = []
-        x = difflib.SequenceMatcher(a=self.text, b=self.target).get_opcodes()
-        for op, s1, f1, s2, f2 in x:
-            if op == "replace":
-                words.append(
-                    ("delete", self.text[s1:f1])
-                )
-                words.append(
-                    ("insert", self.target[s2:f2])
-                )
-            else:
-                words.append(
-                    (op, self.target[s2:f2])
-                )
-
-        return words
 
     def get_coord(self, row, col):
         return CHAR_WIDTH * col, CHAR_HEIGHT * row
@@ -201,6 +182,11 @@ class Editor:
         text_rect.bottomleft = (0, HEIGHT)
         EDITOR.screen.blit(text_surface, text_rect)
 
+        coords = FONT.render(f"{self.buffer.row}:{self.buffer.col}", True, TEXT_COLOR)
+        text_rect = coords.get_rect()
+        text_rect.bottomleft = (WIDTH//2, HEIGHT)
+        EDITOR.screen.blit(coords, text_rect)
+
     def draw(self):
         self.screen.fill(BACKGROUND_COLOR)
         if self.buffer: self.buffer.draw()
@@ -267,7 +253,7 @@ class NormalMode(State):
     NAME = "NORMAL"
 
     def max_col(self):
-        return len(EDITOR.buffer.line)
+        return len(EDITOR.buffer.line) - 1
 
     def draw(self):
         super().draw()
@@ -289,7 +275,7 @@ class InsertMode(State):
     NAME = "-- INSERT --"
 
     def max_col(self):
-        return len(EDITOR.buffer.line) + 1
+        return len(EDITOR.buffer.line)
 
     def handle_input(self, event):
         if event.key == pygame.K_ESCAPE:

@@ -7,11 +7,10 @@ from finds import *
 from mementos import *
 from instant_actions import *
 
-
 if __name__ == "__main__":
     lines = [
         "class Foo:",
-        "    def foo(self, x):",
+        "    def foo(self, x):   ",
         "       return x + 1"
     ]
     test_lines = [
