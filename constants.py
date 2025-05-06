@@ -104,12 +104,17 @@ class Line:
 
 
 class Buffer:
-    def __init__(self, lines: list[Line], row=0, col=0, x=20, y=20):
+    def __init__(self, lines: list[Line], row=0, col=0, x=20, y=20, name=None):
+        self.name = name
         self.lines = lines
         self.row, self.col = row, col
         self.x, self.y = x, y
         self.undo_list = []
         self.redo_list = []
+
+    def get_rect(self):
+        max_width = max([len(line.augmented) for line in self.lines])
+        return self.x, self.y, max_width * CHAR_WIDTH, len(self.lines) * CHAR_HEIGHT
 
     def get_coord(self, row, col):
         return (
@@ -137,6 +142,20 @@ class Buffer:
     def get_topleft(self, row):
         return self.x, self.y + row * CHAR_HEIGHT
 
+    def next_row(self):
+        if self.row == len(self.lines) - 1:
+            return False
+
+        self.row += 1
+        return True
+
+    def previous_row(self):
+        if self.row == 0:
+            return False
+
+        self.row -= 1
+        return True
+
     def draw(self):
         # Draw text
         for n, line in enumerate(self.lines):
@@ -144,12 +163,21 @@ class Buffer:
 
         self.y += 0.1
 
+        footer = FONT.render(self.name, True, WHITE)
+        x,y,l,h = self.get_rect()
+        footer_rect = footer.get_rect(topleft=(x, y+h))
+        EDITOR.screen.blit(footer, footer_rect)
+
+    def is_solved(self):
+        return all([line.is_solved() for line in self.lines])
+
     def test(self):
         print("Testing buffer...")
-        if all([line.is_solved() for line in self.lines]):
+        if self.is_solved():
+            EDITOR.buffer = None
             EDITOR.credit += 100
+            del EDITOR.buffers[self.name]
             print("Solved!")
-
         else:
             print("Not solved!")
 
@@ -169,12 +197,15 @@ class Editor:
         self.last_search = None
         self.count = 0
         self.credit = 100
+        self.buffers = {}
 
-    def get_buffer(self, lines, targets=None):
+    def add_buffer(self, name, lines, targets=None):
         if targets is None:
-            return Buffer([Line(line) for line in lines])
+            buffer = Buffer([Line(line) for line in lines], name=name)
+        else:
+            buffer = Buffer([Line(line, target) for line, target in zip(lines, targets)], name=name)
 
-        return Buffer([Line(line, target) for line, target in zip(lines, targets)])
+        EDITOR.buffers[name] = buffer
 
     def draw_command_line(self, text):
         text_surface = FONT.render(text, True, TEXT_COLOR)
@@ -182,14 +213,16 @@ class Editor:
         text_rect.bottomleft = (0, HEIGHT)
         EDITOR.screen.blit(text_surface, text_rect)
 
-        coords = FONT.render(f"{self.buffer.row}:{self.buffer.col}", True, TEXT_COLOR)
-        text_rect = coords.get_rect()
-        text_rect.bottomleft = (WIDTH//2, HEIGHT)
-        EDITOR.screen.blit(coords, text_rect)
+        if self.buffer:
+            coords = FONT.render(f"{self.buffer.row}:{self.buffer.col}", True, TEXT_COLOR)
+            text_rect = coords.get_rect()
+            text_rect.bottomleft = (WIDTH//2, HEIGHT)
+            EDITOR.screen.blit(coords, text_rect)
 
     def draw(self):
         self.screen.fill(BACKGROUND_COLOR)
-        if self.buffer: self.buffer.draw()
+        for buffer in self.buffers.values():
+            buffer.draw()
         if self.state: self.state.draw()
         pygame.display.flip()
 
@@ -259,15 +292,16 @@ class NormalMode(State):
         super().draw()
 
         # Draw cursor as a block
-        top, left = EDITOR.buffer.get_coord(EDITOR.buffer.row, EDITOR.buffer.col)
-        cursor_rect = pygame.Rect(left, top, CHAR_WIDTH, CHAR_HEIGHT)
+        if EDITOR.buffer:
+            top, left = EDITOR.buffer.get_coord(EDITOR.buffer.row, EDITOR.buffer.col)
+            cursor_rect = pygame.Rect(left, top, CHAR_WIDTH, CHAR_HEIGHT)
 
-        # Draw the cursor
-        pygame.draw.rect(EDITOR.screen, CURSOR_COLOR, cursor_rect)
+            # Draw the cursor
+            pygame.draw.rect(EDITOR.screen, CURSOR_COLOR, cursor_rect)
 
-        # Draw the character under the cursor in a different color
-        char_surface = FONT.render(EDITOR.buffer.line[EDITOR.buffer.col], True, CURSOR_TEXT_COLOR)
-        EDITOR.screen.blit(char_surface, (left, top))
+            # Draw the character under the cursor in a different color
+            char_surface = FONT.render(EDITOR.buffer.line[EDITOR.buffer.col], True, CURSOR_TEXT_COLOR)
+            EDITOR.screen.blit(char_surface, (left, top))
 
 
 class InsertMode(State):
