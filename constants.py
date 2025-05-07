@@ -22,6 +22,7 @@ TEXT_COLOR = (255, 255, 255)
 BACKGROUND_COLOR = (0, 0, 0)
 CURSOR_COLOR = (255, 255, 255)
 CURSOR_TEXT_COLOR = (0, 0, 0)  # Text color when under cursor
+WORD_BACKGROUND_COLOR = (16, 0, 58)
 
 # Font
 FONT = pygame.font.SysFont("monospace", FONT_SIZE)
@@ -104,13 +105,14 @@ class Line:
 
 
 class Buffer:
-    def __init__(self, lines: list[Line], row=0, col=0, x=20, y=20, name=None):
+    def __init__(self, lines: list[Line], row=0, col=0, x=20, y=20, name=None, score=20):
         self.name = name
         self.lines = lines
         self.row, self.col = row, col
         self.x, self.y = x, y
         self.undo_list = []
         self.redo_list = []
+        self.score = score
 
     def get_rect(self):
         max_width = max([len(line.augmented) for line in self.lines])
@@ -157,6 +159,9 @@ class Buffer:
         return True
 
     def draw(self):
+        # Draw background
+        pygame.draw.rect(EDITOR.screen, WORD_BACKGROUND_COLOR, self.get_rect())
+
         # Draw text
         for n, line in enumerate(self.lines):
             line.draw(self.x, self.y + CHAR_HEIGHT * n)
@@ -168,6 +173,11 @@ class Buffer:
         footer_rect = footer.get_rect(topleft=(x, y + h))
         EDITOR.screen.blit(footer, footer_rect)
 
+        footer = FONT.render(f"Points: {self.score}", True, WHITE)
+        x, y, l, h = self.get_rect()
+        footer_rect = footer.get_rect(topleft=(x+l-CHAR_WIDTH*10, y + h))
+        EDITOR.screen.blit(footer, footer_rect)
+
     def is_solved(self):
         return all([line.is_solved() for line in self.lines])
 
@@ -175,7 +185,7 @@ class Buffer:
         print("Testing buffer...")
         if self.is_solved():
             EDITOR.buffer = None
-            EDITOR.credit += 100
+            EDITOR.credit += self.score
             del EDITOR.buffers[self.name]
             print("Solved!")
         else:
@@ -193,7 +203,7 @@ class Editor:
         self.last_action = None
         self.last_search = None
         self.count = 0
-        self.credit = 100
+        self.credit = 20
         self.buffers = {}
 
     def add_buffer(self, name, lines, targets=None):
@@ -221,7 +231,13 @@ class Editor:
         for buffer in self.buffers.values():
             buffer.draw()
         if self.state: self.state.draw()
+        self.draw_score()
         pygame.display.flip()
+
+    def draw_score(self):
+        header = FONT.render(f"Score: {self.credit-self.count}", True, WHITE)
+        header_rect = header.get_rect(topleft=(WIDTH-CHAR_WIDTH*12, 0))
+        self.screen.blit(header, header_rect)
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -241,8 +257,18 @@ class Editor:
             self.handle_events()
             self.draw()
             self.clock.tick(FPS)
+            self.spawn()
+            self.score()
 
         self.quit()
+
+    def spawn(self):
+        pass
+
+    def score(self):
+        if self.credit < self.count:
+            self.running = False
+
 
     def quit(self):
         self.running = False
