@@ -8,7 +8,7 @@ def get_diff(current, target):
     words = []
     x = SequenceMatcher(a=current, b=target).get_opcodes()
     for op, s1, f1, s2, f2 in x:
-        print(op, s1, f1, s2, f2)
+        # print(op, s1, f1, s2, f2)
         if op == "replace":
             words.append(
                 ("delete", replace(current[s1:f1]))

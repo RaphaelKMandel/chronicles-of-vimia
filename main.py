@@ -19,5 +19,6 @@ if __name__ == "__main__":
         "    def foo(self):",
         "       return self.x + 1"
     ]
-    EDITOR.buffer = EDITOR.add_buffer("main.py", lines, test_lines)
+    EDITOR.add_buffer("main.py", lines, test_lines)
+    EDITOR.buffer = EDITOR.buffers["main.py"]
     EDITOR.run()

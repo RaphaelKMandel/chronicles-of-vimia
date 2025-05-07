@@ -71,7 +71,6 @@ class WordParser:
 
     def prev_word_start(self, ind):
         for word, inds in zip(reversed(self.words), reversed(self.word_inds)):
-            print(word, inds)
             if inds[0] < ind and word.strip():
                 return inds[0]
 

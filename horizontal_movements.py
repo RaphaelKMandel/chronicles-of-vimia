@@ -8,7 +8,8 @@ class HorizontalMovement(InstantMovement):
 
 class Right(HorizontalMovement):
     def evaluate(self, buffer):
-        return min(len(buffer.line) - 1, buffer.col + 1)
+        max_col = EDITOR.state.max_col()
+        return min(max_col, buffer._col + 1)
 
 
 class Left(HorizontalMovement):
@@ -32,7 +33,7 @@ class Carrot(HorizontalMovement):
 
 class Dollar(HorizontalMovement):
     def evaluate(self, buffer):
-        return len(buffer.line) - 1
+        return EDITOR.state.max_col()
 
 
 NormalMode.KEYMAP["l"] = Right

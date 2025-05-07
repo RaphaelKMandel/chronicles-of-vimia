@@ -328,16 +328,4 @@ class InstantMovement(Movement):
         self.execute()
 
 
-class Action(Child):
-    def activate(self):
-        EDITOR.buffer.undo_list.append(BufferState(EDITOR.buffer))
-        EDITOR.buffer.redo_list = []
-        self.execute()
-        EDITOR.state = self.parent
-        EDITOR.last_action = self
-
-    def execute(self):
-        pass
-
-
 EDITOR = Editor()
