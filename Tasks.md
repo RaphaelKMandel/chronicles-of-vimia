@@ -15,6 +15,10 @@
 - [ ] Buffer spawner class
 - [ ] Change Action class to Change class?
 - [ ] Make demo file to demonstrate concept
+- [ ] Add counts to things
+- [ ] Insert mode creates list of actions (like a macro)?
+  - [ ] Insert Action to insert a char?
+- [ ] Classes for move actions, like delete, change, etc..
 
 
 # Approach
