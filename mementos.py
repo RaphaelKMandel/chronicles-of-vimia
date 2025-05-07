@@ -8,10 +8,9 @@ class Undo(Child):
 
     def execute(self):
         if EDITOR.buffer.undo_list:
-            EDITOR.buffer.redo_list.append(EDITOR.buffer.copy())
-            buffer = EDITOR.buffer.undo_list.pop()
-            EDITOR.buffer.lines = buffer.lines
-            EDITOR.buffer.row, EDITOR.buffer.col = buffer.row, buffer.col
+            EDITOR.buffer.redo_list.append(BufferState(EDITOR.buffer))
+            buffer_state = EDITOR.buffer.undo_list.pop()
+            buffer_state.restore(EDITOR.buffer)
 
 
 class Redo(Child):
@@ -21,10 +20,9 @@ class Redo(Child):
 
     def execute(self):
         if EDITOR.buffer.redo_list:
-            EDITOR.buffer.undo_list.append(EDITOR.buffer.copy())
-            buffer = EDITOR.buffer.redo_list.pop()
-            EDITOR.buffer.lines = buffer.lines
-            EDITOR.buffer.row, EDITOR.buffer.col = buffer.row, buffer.col
+            EDITOR.buffer.undo_list.append(BufferState(EDITOR.buffer))
+            buffer_state = EDITOR.buffer.redo_list.pop()
+            buffer_state.restore(EDITOR.buffer)
 
 
 NormalMode.KEYMAP["u"] = Undo
