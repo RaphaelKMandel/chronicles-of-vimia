@@ -6,6 +6,7 @@ class CommandMode(State):
         "q": EDITOR.quit,
         "w": EDITOR.write,
     }
+
     def __init__(self, parent):
         super().__init__(parent)
         self.command = ""
@@ -13,21 +14,19 @@ class CommandMode(State):
     def get_command(self):
         if self.command in self.KEYMAP:
             self.KEYMAP[self.command]()
-            return True
 
         if self.command.startswith("e"):
             self.edit()
-            return True
 
         if self.command.startswith("n"):
             self.restart()
-            return False
+            self.parent.restart = True
+            self.parent = self.parent.parent  # parent should be NormalMode not LostMode
 
     def handle_input(self, event):
         if event.key == pygame.K_RETURN:
-            if self.get_command():
-                self.deactivate()
-            return
+            self.get_command()
+            self.deactivate()
 
         if event.key == pygame.K_BACKSPACE:
             self.command = self.command[:-1]

@@ -75,12 +75,14 @@ class FindBackwardTo(Find):
 
 class RepeatFindForward:
     def __init__(self, parent):
-        EDITOR.last_search.execute(reversed=False)
+        if EDITOR.last_search is not None:
+            EDITOR.last_search.execute(reversed=False)
 
 
 class RepeatFindBackward:
     def __init__(self, parent):
-        EDITOR.last_search.execute(reversed=True)
+        if EDITOR.last_search is not None:
+            EDITOR.last_search.execute(reversed=True)
 
 
 NormalMode.KEYMAP["f"] = FindForward

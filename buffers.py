@@ -152,7 +152,7 @@ class Buffer:
         return self.y + height > HEIGHT - CHAR_HEIGHT
 
     def test(self):
-        if self.is_solved():
+        if self.is_solved() and self.editor.state is self.editor.normal:
             self.editor.credit += self.score
             self.delete()
         elif self.hit_bottom():

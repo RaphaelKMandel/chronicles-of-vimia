@@ -2,6 +2,7 @@ import sys
 from constants import *
 from spawners import RandomSpawner
 
+
 class Child:
     def __init__(self, parent):
         self.parent = parent
@@ -33,7 +34,6 @@ class Editor:
         self.count = 0
         self.credit = 20
         self.buffers = {}
-        self.state = self.normal
 
     def draw_command_line(self, text):
         text_surface = FONT.render(text, True, TEXT_COLOR)
@@ -97,7 +97,7 @@ class Editor:
     def check_score(self):
         if self.credit <= self.count:
             self.lost = True
-            self.state = LostMode()
+            LostMode(self.normal)
             self.buffers = {}
 
     def quit(self):
@@ -123,13 +123,21 @@ class State(Child):
         if self.parent is not None:
             self.parent.activate()
 
-    def handle_input(self, event):
+    def get_command(self, event):
         if event.unicode in self.KEYMAP:
             print(self, event.unicode, self.KEYMAP[event.unicode])
-            self.KEYMAP[event.unicode](self)
-        else:
-            print(f"Unknown keybind {event.unicode} in {EDITOR.state}.")
-            self.deactivate()
+            return self.KEYMAP[event.unicode]
+
+        print(f"Unknown keybind {event.unicode} in {EDITOR.state}.")
+
+    def run_command(self, event):
+        command = self.get_command(event)
+        if command is not None:
+            command(self)
+
+    def handle_input(self, event):
+        self.run_command(event)
+        self.deactivate()
 
     def draw(self):
         EDITOR.draw_command_line(self.NAME)
@@ -162,8 +170,15 @@ class LostMode(State):
     KEYMAP = {}
     NAME = "GAME OVER"
 
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.restart = False
+
     def max_col(self):
         return 0
+
+    def handle_input(self, event):
+        self.run_command(event)
 
 
 class BufferMemento:
