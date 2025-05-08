@@ -11,7 +11,7 @@ class CommandMode(State):
         super().__init__(parent)
         self.command = ""
 
-    def get_command(self):
+    def run_command(self):
         if self.command in self.KEYMAP:
             self.KEYMAP[self.command]()
 
@@ -20,12 +20,13 @@ class CommandMode(State):
 
         if self.command.startswith("n"):
             self.restart()
-            self.parent.restart = True
-            self.parent = self.parent.parent  # parent should be NormalMode not LostMode
+            if self.parent.NAME == "GAME OVER":
+                self.parent.restart = True
+                self.parent = self.parent.parent
 
     def handle_input(self, event):
         if event.key == pygame.K_RETURN:
-            self.get_command()
+            self.run_command()
             self.deactivate()
 
         if event.key == pygame.K_BACKSPACE:

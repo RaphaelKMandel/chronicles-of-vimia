@@ -130,14 +130,10 @@ class State(Child):
 
         print(f"Unknown keybind {event.unicode} in {EDITOR.state}.")
 
-    def run_command(self, event):
+    def handle_input(self, event):
         command = self.get_command(event)
         if command is not None:
             command(self)
-
-    def handle_input(self, event):
-        self.run_command(event)
-        self.deactivate()
 
     def draw(self):
         EDITOR.draw_command_line(self.NAME)
@@ -177,8 +173,12 @@ class LostMode(State):
     def max_col(self):
         return 0
 
+
+class OperatorMode(NormalMode):
+    KEYMAP = {}
     def handle_input(self, event):
-        self.run_command(event)
+        if self.get_command(event):
+            pass
 
 
 class BufferMemento:

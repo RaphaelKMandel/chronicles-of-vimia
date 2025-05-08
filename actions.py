@@ -29,3 +29,4 @@ class CompoundAction(Action):
     def execute(self):
         for action in self.actions:
             action.execute()
+
