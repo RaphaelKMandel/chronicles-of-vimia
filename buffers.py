@@ -154,11 +154,11 @@ class Buffer:
     def test(self):
         if self.is_solved():
             self.editor.credit += self.score
-            del self.editor.buffers[self.name]
+            self.delete()
         elif self.hit_bottom():
-            self.destroy()
+            self.editor.count += self.score * 2
+            self.delete()
 
-    def destroy(self):
-        self.editor.count += self.score * 2
+    def delete(self):
         del self.editor.buffers[self.name]
         self.editor.state = self.editor.normal
