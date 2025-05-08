@@ -1,4 +1,4 @@
-from constants import *
+from classes import *
 
 
 class Action(Child):
@@ -9,7 +9,7 @@ class Action(Child):
     def register(self):
         EDITOR.last_action = self
         EDITOR.buffer.redo_list = []
-        EDITOR.buffer.undo_list.append(BufferState(EDITOR.buffer))
+        EDITOR.buffer.undo_list.append(BufferMemento(EDITOR.buffer))
 
     def execute(self):
         pass

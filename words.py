@@ -1,4 +1,4 @@
-from constants import *
+from classes import *
 from word_parser import WordParser
 
 

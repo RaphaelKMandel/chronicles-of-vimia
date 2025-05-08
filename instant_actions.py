@@ -1,4 +1,4 @@
-from constants import *
+from classes import *
 from actions import InstantAction
 
 

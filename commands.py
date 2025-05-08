@@ -1,7 +1,7 @@
-from constants import *
+from classes import *
 
 
-class Command(State):
+class CommandMode(State):
     KEYMAP = {
         "q": EDITOR.quit,
         "w": EDITOR.write,
@@ -13,14 +13,20 @@ class Command(State):
     def get_command(self):
         if self.command in self.KEYMAP:
             self.KEYMAP[self.command]()
+            return True
 
         if self.command.startswith("e"):
             self.edit()
+            return True
+
+        if self.command.startswith("n"):
+            self.restart()
+            return False
 
     def handle_input(self, event):
         if event.key == pygame.K_RETURN:
-            self.get_command()
-            self.deactivate()
+            if self.get_command():
+                self.deactivate()
             return
 
         if event.key == pygame.K_BACKSPACE:
@@ -35,11 +41,15 @@ class Command(State):
         if buffer in EDITOR.buffers:
             EDITOR.buffer = EDITOR.buffers[buffer]
 
+    def restart(self):
+        EDITOR.restart()
+
     def draw(self):
         text_surface = FONT.render(f":{self.command}", True, TEXT_COLOR)
         text_rect = text_surface.get_rect()
         text_rect.bottomleft = (0, HEIGHT)
-        EDITOR.screen.blit(text_surface, text_rect)
+        SCREEN.blit(text_surface, text_rect)
 
 
-NormalMode.KEYMAP[":"] = Command
+NormalMode.KEYMAP[":"] = CommandMode
+LostMode.KEYMAP[":"] = CommandMode

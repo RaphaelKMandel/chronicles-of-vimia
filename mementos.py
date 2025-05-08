@@ -1,4 +1,4 @@
-from constants import *
+from classes import *
 
 
 class Undo(Child):
@@ -8,7 +8,7 @@ class Undo(Child):
 
     def execute(self):
         if EDITOR.buffer.undo_list:
-            EDITOR.buffer.redo_list.append(BufferState(EDITOR.buffer))
+            EDITOR.buffer.redo_list.append(BufferMemento(EDITOR.buffer))
             buffer_state = EDITOR.buffer.undo_list.pop()
             buffer_state.restore(EDITOR.buffer)
 
@@ -20,7 +20,7 @@ class Redo(Child):
 
     def execute(self):
         if EDITOR.buffer.redo_list:
-            EDITOR.buffer.undo_list.append(BufferState(EDITOR.buffer))
+            EDITOR.buffer.undo_list.append(BufferMemento(EDITOR.buffer))
             buffer_state = EDITOR.buffer.redo_list.pop()
             buffer_state.restore(EDITOR.buffer)
 

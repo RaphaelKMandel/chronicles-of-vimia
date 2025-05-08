@@ -1,4 +1,4 @@
-from constants import *
+from classes import *
 
 
 class HorizontalMovement(InstantMovement):
