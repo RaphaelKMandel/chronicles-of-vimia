@@ -7,6 +7,7 @@ from inserts import *
 from finds import *
 from mementos import *
 from instant_actions import *
+from operator_actions import *
 from spawners import *
 
 if __name__ == "__main__":

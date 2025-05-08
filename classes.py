@@ -1,4 +1,7 @@
 import sys
+
+from pygame import K_ESCAPE
+
 from constants import *
 from spawners import RandomSpawner
 
@@ -124,6 +127,10 @@ class State(Child):
             self.parent.activate()
 
     def get_command(self, event):
+        if event.key == K_ESCAPE:
+            self.deactivate()
+            return
+
         if event.unicode in self.KEYMAP:
             print(self, event.unicode, self.KEYMAP[event.unicode])
             return self.KEYMAP[event.unicode]
@@ -172,13 +179,6 @@ class LostMode(State):
 
     def max_col(self):
         return 0
-
-
-class OperatorMode(NormalMode):
-    KEYMAP = {}
-    def handle_input(self, event):
-        if self.get_command(event):
-            pass
 
 
 class BufferMemento:

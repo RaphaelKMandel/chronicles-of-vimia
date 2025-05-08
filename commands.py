@@ -20,7 +20,7 @@ class CommandMode(State):
 
         if self.command.startswith("n"):
             self.restart()
-            if self.parent.NAME == "GAME OVER":
+            if isinstance(self.parent, LostMode):
                 self.parent.restart = True
                 self.parent = self.parent.parent
 

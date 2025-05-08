@@ -37,3 +37,10 @@
 - __init__ method starts everything off; does not change to OperatorState
 - activate method contains parent class logic while execute method contains logic for child classes
 - activate method will be called when OperatorState deactivates
+
+
+- Initialization Step
+- Execution Step
+
+# Methods
+- 
