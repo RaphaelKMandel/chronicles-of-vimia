@@ -6,6 +6,12 @@ The game helps you practice Vim commands in a fun, interactive way.
 This game focuses on using Vim motions to quickly edit text, rather than presenting puzzles to study.
 As you progress and get better, using fewer keystrokes should happen naturally, and your scores will be higher.
 
+Before you ask, the game is implemented in python for a few reason:
+1. Because I wanted to
+2. I am a hobbyist/aspiring software developer who is learning, and I wanted a medium sized project where I could practice
+   using Design Patters, such as State, Command, Memento, Template Methods, etc...
+3. I wanted more game-style effects, such as falling buffers, explody effects, etc...
+4. I thought it would be easier than doing (3) in native vim/neovim
 
 This is a work in progress, so please forgive any bugs or missing features.
 
@@ -44,3 +50,5 @@ python main.py
 2. Text objects (iw, aw, ap) and associated spawners
 3. More than one falling buffer at a time
 4. Better graphics, effects, etc...
+5. A larger library of buffer spawners to teach certain chords/patterns
+6. Adding new spawners as score increases 
