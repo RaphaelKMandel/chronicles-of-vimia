@@ -6,6 +6,7 @@ The game helps you practice Vim commands in a fun, interactive way.
 This game focuses on using Vim motions to quickly edit text, rather than presenting puzzles to study.
 As you progress and get better, using fewer keystrokes should happen naturally, and your scores will be higher.
 
+## Why Python???
 Before you ask, the game is implemented in python for a few reason:
 1. Because I wanted to
 2. I am a hobbyist/aspiring software developer who is learning, and I wanted a medium sized project where I could practice
