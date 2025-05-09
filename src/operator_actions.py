@@ -1,4 +1,5 @@
 from classes import *
+from motions import StartWord, EndWord, PrevWord
 from finds import FindForward, FindBackward, FindForwardTo, FindBackwardTo
 from actions import CompoundAction
 
@@ -81,8 +82,45 @@ class FindBackwardToAction(FindAction):
         super().__init__(parent, FindBackwardTo(self))
 
 
+class StartWordAction:
+    def __init__(self, parent):
+        self.parent = parent
+        self.motion = StartWord()
+        self.parent.finish(self)
+
+    def evaluate(self, buffer):
+        col = self.motion.evaluate(buffer) - 1
+        return buffer.row, col
+
+
+class EndWordAction:
+    def __init__(self, parent):
+        self.parent = parent
+        self.motion = EndWord()
+        self.parent.finish(self)
+
+    def evaluate(self, buffer):
+        col = self.motion.evaluate(buffer)
+        return buffer.row, col
+
+
+class PrevWordAction:
+    def __init__(self, parent):
+        self.parent = parent
+        self.motion = PrevWord()
+        self.parent.finish(self)
+
+    def evaluate(self, buffer):
+        col = self.motion.evaluate(buffer)
+        return buffer.row, col
+
+
 NormalMode.KEYMAP["d"] = DeleteOperator
 OperatorMode.KEYMAP["f"] = FindForwardAction
 OperatorMode.KEYMAP["F"] = FindBackwardAction
 OperatorMode.KEYMAP["t"] = FindForwardToAction
 OperatorMode.KEYMAP["T"] = FindBackwardToAction
+
+OperatorMode.KEYMAP["w"] = StartWordAction
+OperatorMode.KEYMAP["e"] = EndWordAction
+OperatorMode.KEYMAP["b"] = PrevWordAction
