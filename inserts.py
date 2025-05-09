@@ -15,7 +15,6 @@ class EnterInsertMode:
         self.parent.finish(self.state.actions)
 
 
-
 class LeaveInsertMode:
     def execute(self):
         EDITOR.pop()

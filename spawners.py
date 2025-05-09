@@ -26,12 +26,12 @@ class EndSpawner(Spawner):
     TEXTS = [
         "This sentence has an error at the end."
     ]
+
     def __init__(self, editor):
         target = self.TEXTS[0]
         text = target + letter()
 
         super().__init__(editor, name="a", texts=["Look down", text], targets=["Look down", target], score=3)
-
 
 
 class FindSpawner(Spawner):

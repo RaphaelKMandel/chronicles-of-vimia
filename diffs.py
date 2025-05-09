@@ -4,6 +4,7 @@ from difflib import SequenceMatcher
 def replace(string):
     return string.replace(" ", "\u2423")
 
+
 def get_diff(current, target):
     words = []
     x = SequenceMatcher(a=current, b=target).get_opcodes()
