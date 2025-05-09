@@ -11,7 +11,7 @@ Before you ask, the game is implemented in python for a few reason:
 2. I am a hobbyist/aspiring software developer who is learning, and I wanted a medium sized project where I could practice
    using Design Patters, such as State, Command, Memento, Template Methods, etc...
 3. I wanted more game-style effects, such as falling buffers, explody effects, etc...
-4. I thought it would be easier than doing (3) in native vim/neovim
+4. I thought it would be useful to have this library for other vim-related games
 
 This is a work in progress, so please forgive any bugs or missing features.
 
