@@ -1,5 +1,5 @@
 from classes import *
-from motions import ForwardFind, BackwardFind
+from motions import Find
 
 
 class FindState(NormalMode):
@@ -8,75 +8,111 @@ class FindState(NormalMode):
         self.parent = parent
 
     def handle_input(self, event):
-        self.parent.finish(event.unicode)
-
-
-class Find:
-    LAST_SEARCH = None
-
-    def __call__(self):
-        Find.LAST_SEARCH = self
-        self.state = FindState(self)
-
-    def __init__(self, forward, offset):
-        self.char = ""
-        self.forward = forward
-        self.offset = offset
+        self.finish(event.unicode)
 
     def finish(self, char):
-        self.char = char
+        EDITOR.pop()
+        self.parent.finish(char)
+
+
+class FindMotionBuilder:
+    def __init__(self, parent, forward, offset):
+        self.parent = parent
+        self.forward = forward
+        self.offset = offset
+        self.state = FindState(self)
+
+    def finish(self, char):
+        if char.isprintable():
+            motion = Find(char, self.forward, self.offset)
+            self.parent.finish(motion)
+
+
+class FindMotion:
+    def __init__(self, parent, forward, offset):
+        self.parent = parent
+        self.motion = None
+        FindMotionBuilder(self, forward=forward, offset=offset)
+
+    def finish(self, motion):
+        FindMovement.LAST = FindMovement(motion)
+        self.motion = motion
+        self.parent.finish()
+
+    def evaluate(self, buffer, reversed=False):
+        return self.motion.evaluate(buffer, reversed=reversed)
+
+
+class FindForward(FindMotion):
+    def __init__(self, parent):
+        super().__init__(parent, forward=True, offset=0)
+
+
+class FindBackward(FindMotion):
+    def __init__(self, parent):
+        super().__init__(parent, forward=False, offset=0)
+
+
+class FindForwardTo(FindMotion):
+    def __init__(self, parent):
+        super().__init__(parent, forward=True, offset=1)
+
+
+class FindBackwardTo(FindMotion):
+    def __init__(self, parent):
+        super().__init__(parent, forward=False, offset=1)
+
+
+class FindMovement:
+    LAST = None
+
+    def __init__(self, motion):
+        self.motion = motion
+
+    def finish(self):
         self.execute()
-        EDITOR.state = EDITOR.normal
 
     def execute(self, reversed=False):
-        forward = self.forward if not reversed else not self.forward
-        if forward:
-            new_col = ForwardFind(self.char, self.offset).evaluate(EDITOR.buffer)
-        else:
-            new_col = BackwardFind(self.char, self.offset).evaluate(EDITOR.buffer)
-
+        new_col = self.motion.evaluate(EDITOR.buffer, reversed=reversed)
         if new_col is not None:
             EDITOR.buffer.col = new_col
 
 
-class FindForward(Find):
+class FindForwardMovement(FindMovement):
     def __init__(self):
-        super().__init__(forward=True, offset=0)
+        super().__init__(FindForward(self))
 
 
-class FindBackward(Find):
+class FindBackwardMovement(FindMovement):
     def __init__(self):
-        super().__init__(forward=False, offset=0)
+        super().__init__(FindBackward(self))
 
 
-class FindForwardTo(Find):
+class FindForwardToMovement(FindMovement):
     def __init__(self):
-        super().__init__(forward=True, offset=1)
+        super().__init__(FindForwardTo(self))
 
 
-class FindBackwardTo(Find):
+class FindBackwardToMovement(FindMovement):
     def __init__(self):
-        super().__init__(forward=False, offset=1)
+        super().__init__(FindBackwardTo(self))
 
 
-class RepeatFindForward:
-    def __call__(self):
-        if Find.LAST_SEARCH is not None:
-            Find.LAST_SEARCH.execute(reversed=False)
+class RepeatFindForwardMovement:
+    def __init__(self):
+        if FindMovement.LAST is not None:
+            FindMovement.LAST.execute(reversed=False)
 
 
-class RepeatFindBackward:
-    def __call__(self):
-        if Find.LAST_SEARCH is not None:
-            Find.LAST_SEARCH.execute(reversed=True)
+class RepeatFindBackwardMovement:
+    def __init__(self):
+        if FindMovement.LAST is not None:
+            FindMovement.LAST.execute(reversed=True)
 
 
-NormalMode.KEYMAP["f"] = FindForward()
-NormalMode.KEYMAP["F"] = FindBackward()
-NormalMode.KEYMAP["t"] = FindForwardTo()
-NormalMode.KEYMAP["T"] = FindBackwardTo()
-NormalMode.KEYMAP[";"] = RepeatFindForward()
-NormalMode.KEYMAP[","] = RepeatFindBackward()
-
-if __name__ == "__main__":
-    pass
+NormalMode.KEYMAP["f"] = FindForwardMovement
+NormalMode.KEYMAP["F"] = FindBackwardMovement
+NormalMode.KEYMAP["t"] = FindForwardToMovement
+NormalMode.KEYMAP["T"] = FindBackwardToMovement
+NormalMode.KEYMAP[";"] = RepeatFindForwardMovement
+NormalMode.KEYMAP[","] = RepeatFindBackwardMovement

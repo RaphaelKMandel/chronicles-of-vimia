@@ -53,22 +53,26 @@ class Up(Motion):
 
 
 class Find(Motion):
-    def __init__(self, char, offset):
+    def __init__(self, char, forward, offset):
         self.char = char
+        self.forward = forward
         self.offset = offset
 
+    def evaluate(self, buffer, reversed=False):
+        forward = self.forward if not reversed else not self.forward
+        if forward:
+            return self.forward_find(buffer)
+        else:
+            return self.backward_find(buffer)
 
-class ForwardFind(Find):
-    def evaluate(self, buffer):
+    def forward_find(self, buffer):
         for col, char in enumerate(buffer.line[buffer.col + 1 + self.offset:], start=buffer.col + 1 + self.offset):
             if char == self.char:
                 return col - self.offset
 
         return None
 
-
-class BackwardFind(Find):
-    def evaluate(self, buffer):
+    def backward_find(self, buffer):
         for col, char in zip(reversed(range(buffer.col - self.offset)),
                              reversed(buffer.line[:buffer.col - self.offset])):
             if char == self.char:

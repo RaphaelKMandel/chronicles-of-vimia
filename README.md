@@ -7,12 +7,12 @@ This game focuses on using Vim motions to quickly edit text, rather than present
 As you progress and get better, using fewer keystrokes should happen naturally, and your scores will be higher.
 
 ## Why Python???
-Before you ask, the game is implemented in python for a few reason:
+Before you ask, the game is implemented in python for a few reasons:
 1. Because I wanted to
-2. I am a hobbyist/aspiring software developer who is learning, and I wanted a medium sized project where I could practice
+2. I am a hobbyist/aspiring software developer who is learning, and I wanted a medium sized (?) project where I could practice
    using Design Patterns, such as State, Command, Memento, Strategy, Template Methods, etc...
-3. I wanted more game-style effects, such as falling buffers, explody effects, etc...
-4. I thought it would be useful to have this library for other vim-related games
+3. I wanted more game-style effects, such as falling buffers, explody effects, etc... which I dont think is possible in Vim
+4. I thought it would be useful to have this library for other future vim-related games
 
 This is a work in progress, so please forgive any bugs or missing features.
 

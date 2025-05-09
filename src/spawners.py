@@ -57,3 +57,10 @@ class FindSpawner(Spawner):
 
     def get_name(self):
         return letter() + ".txt"
+
+class DeleteFindSpawner(Spawner):
+    def __init__(self, editor):
+        name = None
+        text = "You need to delete [this)this unnecessary word."
+        target = "You need to delete this unnecessary word."
+        super().__init__(editor, name, [text], [target], 4)
