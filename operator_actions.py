@@ -7,7 +7,7 @@ class OperatorMode(NormalMode):
     KEYMAP = {}
 
     def handle_input(self, event):
-        self.parent.movement = self.get_command(event)(self)
+        self.parent.motion = self.get_command(event)(self)
 
 
 class OperatorAction(CompoundAction):

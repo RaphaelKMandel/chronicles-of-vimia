@@ -3,15 +3,18 @@ from motions import ForwardFind, BackwardFind
 
 
 class FindState(NormalMode):
+    def __init__(self, parent):
+        super().__init__()
+        self.parent = parent
+
     def handle_input(self, event):
-        self.parent.char = event.unicode
-        self.parent.finish()
+        self.parent.finish(event.unicode)
 
 
 class Find:
     LAST_SEARCH = None
 
-    def __call__(self, parent):
+    def __call__(self):
         Find.LAST_SEARCH = self
         self.state = FindState(self)
 
@@ -20,7 +23,8 @@ class Find:
         self.forward = forward
         self.offset = offset
 
-    def finish(self):
+    def finish(self, char):
+        self.char = char
         self.execute()
         EDITOR.state = EDITOR.normal
 
@@ -33,21 +37,6 @@ class Find:
 
         if new_col is not None:
             EDITOR.buffer.col = new_col
-
-    def forward_search(self, buffer):
-        for col, char in enumerate(buffer.line[buffer.col + 1 + self.offset:], start=buffer.col + 1 + self.offset):
-            if char == self.char:
-                return col - self.offset
-
-        return None
-
-    def backward_search(self, buffer):
-        for col, char in zip(reversed(range(buffer.col - self.offset)),
-                             reversed(buffer.line[:buffer.col - self.offset])):
-            if char == self.char:
-                return col + self.offset
-
-        return None
 
 
 class FindForward(Find):
@@ -71,13 +60,13 @@ class FindBackwardTo(Find):
 
 
 class RepeatFindForward:
-    def __call__(self, parent):
+    def __call__(self):
         if Find.LAST_SEARCH is not None:
             Find.LAST_SEARCH.execute(reversed=False)
 
 
 class RepeatFindBackward:
-    def __call__(self, parent):
+    def __call__(self):
         if Find.LAST_SEARCH is not None:
             Find.LAST_SEARCH.execute(reversed=True)
 

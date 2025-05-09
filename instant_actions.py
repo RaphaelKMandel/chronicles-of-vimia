@@ -33,7 +33,7 @@ class InsertChar(InstantAction):
 
 
 class Period(InstantAction):
-    def __call__(self, parent):
+    def __call__(self):
         if Action.LAST_ACTION is not None:
             Action.LAST_ACTION.full_execute()
 

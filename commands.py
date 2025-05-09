@@ -7,8 +7,8 @@ class CommandMode(State):
         "w": EDITOR.write,
     }
 
-    def __init__(self, parent):
-        super().__init__(parent)
+    def __init__(self):
+        super().__init__()
         self.command = ""
 
     def run_command(self):
@@ -20,9 +20,9 @@ class CommandMode(State):
 
         if self.command.startswith("n"):
             self.restart()
-            if isinstance(self.parent, LostMode):
-                self.parent.restart = True
-                self.parent = self.parent.parent
+            if isinstance(EDITOR.state, LostMode):
+                EDITOR.state.restart = True
+                EDITOR.state = EDITOR.states[-1]
 
     def handle_input(self, event):
         if event.key == pygame.K_RETURN:

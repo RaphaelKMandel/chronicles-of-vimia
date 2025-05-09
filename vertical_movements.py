@@ -3,7 +3,7 @@ from motions import Down, Up
 
 
 class VerticalMovement:
-    def __call__(self, parent):
+    def __call__(self):
         self.execute()
 
     def __init__(self, movement):

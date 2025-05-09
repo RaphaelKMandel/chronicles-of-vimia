@@ -1,7 +1,7 @@
 from classes import *
 
 
-class Action(Child):
+class Action:
     LAST_ACTION = None
 
     def full_execute(self):
@@ -18,7 +18,7 @@ class Action(Child):
 
 
 class InstantAction(Action):
-    def __call__(self, parent):
+    def __call__(self):
         self.full_execute()
 
     def __init__(self):

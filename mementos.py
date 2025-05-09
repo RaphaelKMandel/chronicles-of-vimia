@@ -1,9 +1,8 @@
 from classes import *
 
 
-class Undo(Child):
-    def __init__(self, parent):
-        super().__init__(parent)
+class Undo:
+    def __call__(self):
         self.execute()
 
     def execute(self):
@@ -13,9 +12,8 @@ class Undo(Child):
             buffer_state.restore(EDITOR.buffer)
 
 
-class Redo(Child):
-    def __init__(self, parent):
-        super().__init__(parent)
+class Redo:
+    def __call__(self):
         self.execute()
 
     def execute(self):
@@ -25,6 +23,6 @@ class Redo(Child):
             buffer_state.restore(EDITOR.buffer)
 
 
-NormalMode.KEYMAP["u"] = Undo
-NormalMode.KEYMAP["U"] = Redo  # My preferred keybind
-NormalMode.KEYMAP["\x12"] = Redo
+NormalMode.KEYMAP["u"] = Undo()
+NormalMode.KEYMAP["U"] = Redo()  # My preferred keybind
+NormalMode.KEYMAP["\x12"] = Redo()

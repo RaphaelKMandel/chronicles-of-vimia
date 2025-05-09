@@ -5,7 +5,7 @@ from motions import Left, Right, Zero, Carrot, Dollar, StartWord, EndWord, PrevW
 class HorizontalMovement(InstantMovement):
     def execute(self):
         if EDITOR.buffer is not None:
-            new_col = self.movement.evaluate(EDITOR.buffer)
+            new_col = self.motion.evaluate(EDITOR.buffer)
             if new_col is not None:
                 EDITOR.buffer.col = new_col
 

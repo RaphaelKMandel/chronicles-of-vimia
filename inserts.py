@@ -26,7 +26,8 @@ class InsertMode(State):
     NAME = "-- INSERT --"
 
     def __init__(self, parent):
-        super().__init__(parent)
+        super().__init__()
+        self.parent = parent
         self.actions = []
 
     def max_col(self):
@@ -64,7 +65,7 @@ class InsertMode(State):
 
 
 class InsertAction(CompoundAction):
-    def __init__(self, parent):
+    def __init__(self):
         super().__init__()
         self.register()
         action = EnterInsertMode(self)
@@ -79,24 +80,24 @@ class InsertAction(CompoundAction):
 
 
 class AppendAction(InsertAction):
-    def __init__(self, parent):
-        super().__init__(parent)
+    def __init__(self):
+        super().__init__()
         action = MoveRight()
         self.actions.append(action)
         action.execute()
 
 
 class InsertAtStart(InsertAction):
-    def __init__(self, parent):
-        super().__init__(parent)
+    def __init__(self):
+        super().__init__()
         action = MoveCarrot()
         self.actions.append(action)
         action.execute()
 
 
 class AppendAtEnd(InsertAction):
-    def __init__(self, parent):
-        super().__init__(parent)
+    def __init__(self):
+        super().__init__()
         action = MoveDollar()
         self.actions.append(action)
         action.execute()

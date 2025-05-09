@@ -6,11 +6,6 @@ from constants import *
 from spawners import RandomSpawner
 
 
-class Child:
-    def __init__(self, parent):
-        self.parent = parent
-
-
 class Editor:
     BOTTOM = 5
 
@@ -112,7 +107,7 @@ class Editor:
     def check_score(self):
         if self.credit <= self.count:
             self.lost = True
-            LostMode(self.normal)
+            LostMode()
             self.buffers = {}
 
     def quit(self):
@@ -124,11 +119,11 @@ class Editor:
         self.buffer.test()
 
 
-class State(Child):
+class State:
     NAME = "None"
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self):
+        super().__init__()
         self.activate()
 
     def activate(self):
@@ -151,7 +146,7 @@ class State(Child):
     def handle_input(self, event):
         command = self.get_command(event)
         if command is not None:
-            command(self)
+            command()
 
     def draw(self):
         EDITOR.draw_command_line(self.NAME)
@@ -184,28 +179,25 @@ class LostMode(State):
     KEYMAP = {}
     NAME = "GAME OVER"
 
-    def __init__(self, parent):
-        super().__init__(parent)
+    def __init__(self):
+        super().__init__()
         self.restart = False
 
     def max_col(self):
         return 0
 
 
-class Movement(Child):
+class Movement:
     def execute(self):
-        pass
-
-    def evaluate(self, buffer):
         pass
 
 
 class InstantMovement(Movement):
-    def __call__(self, parent):
+    def __call__(self):
         self.execute()
 
-    def __init__(self, movement):
-        self.movement = movement
+    def __init__(self, motion):
+        self.motion = motion
 
 
 class BufferMemento:
