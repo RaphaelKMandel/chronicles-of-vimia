@@ -1,8 +1,8 @@
 from classes import *
-from actions import InstantAction
+from actions import Action, InstantAction
 
 
-class Delete:
+class Delete(InstantAction):
     def execute(self):
         buffer = EDITOR.buffer
         line = buffer.line
@@ -14,7 +14,7 @@ class Delete:
         buffer.col = buffer.col  # Needed to reset column to current column
 
 
-class Backspace:
+class Backspace(InstantAction):
     def execute(self):
         buffer = EDITOR.buffer
         line = buffer.line
@@ -22,7 +22,7 @@ class Backspace:
         buffer.col -= 1
 
 
-class InsertChar:
+class InsertChar(InstantAction):
     def __init__(self, char):
         self.char = char
 
@@ -32,20 +32,15 @@ class InsertChar:
         EDITOR.buffer.col += 1
 
 
-class DeleteAction(InstantAction):
-    execute = Delete.execute
+class Period(InstantAction):
+    def __call__(self, parent):
+        if Action.LAST_ACTION is not None:
+            Action.LAST_ACTION.full_execute()
+
+    def execute(self):
+        Action.LAST_ACTION.execute()
 
 
-class BackspaceAction(InstantAction):
-    execute = Backspace.execute
-
-
-def Period(parent):
-    if EDITOR.last_action:
-        print(EDITOR.last_action.actions)
-        EDITOR.last_action.full_execute()
-
-
-NormalMode.KEYMAP["x"] = DeleteAction
-NormalMode.KEYMAP["X"] = BackspaceAction
-NormalMode.KEYMAP["."] = Period
+NormalMode.KEYMAP["x"] = Delete()
+NormalMode.KEYMAP["X"] = Backspace()
+NormalMode.KEYMAP["."] = Period()

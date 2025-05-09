@@ -1,7 +1,6 @@
 from constants import *
 from commands import *
 from horizontal_movements import *
-from words import *
 from vertical_movements import *
 from inserts import *
 from finds import *

@@ -30,7 +30,7 @@ class EndSpawner(Spawner):
         target = self.TEXTS[0]
         text = target + letter()
 
-        super().__init__(editor, name="a", texts=[text], targets=[target], score=3)
+        super().__init__(editor, name="a", texts=["Look down", text], targets=["Look down", target], score=3)
 
 
 

@@ -17,15 +17,26 @@ class Editor:
     def __init__(self):
         pygame.display.set_caption("Chronicles of Vimia")
         self.clock = pygame.time.Clock()
-        self.state = None
         self.running = True
         self.last_action = None
-        self.last_search = None
         self.spawner = RandomSpawner(self)
         self.lost = False
         self.count = 0
         self.credit = 20
         self.buffers = {}
+        self.states = []
+
+    @property
+    def state(self):
+        return self.states[-1]
+
+    @state.setter
+    def state(self, state):
+        self.states.append(state)
+
+    def pop(self):
+        if len(self.states) > 1:
+            self.states.pop()
 
     @property
     def buffer(self):
@@ -37,6 +48,7 @@ class Editor:
         self.count = 0
         self.credit = 20
         self.buffers = {}
+        self.states = [self.states[0]]
 
     def draw_command_line(self, text):
         text_surface = FONT.render(text, True, TEXT_COLOR)
@@ -123,8 +135,7 @@ class State(Child):
         EDITOR.state = self
 
     def deactivate(self):
-        if self.parent is not None:
-            self.parent.activate()
+        EDITOR.pop()
 
     def get_command(self, event):
         if event.key == K_ESCAPE:
@@ -181,6 +192,22 @@ class LostMode(State):
         return 0
 
 
+class Movement(Child):
+    def execute(self):
+        pass
+
+    def evaluate(self, buffer):
+        pass
+
+
+class InstantMovement(Movement):
+    def __call__(self, parent):
+        self.execute()
+
+    def __init__(self, movement):
+        self.movement = movement
+
+
 class BufferMemento:
     """Used to save state for undo/redo."""
 
@@ -194,20 +221,6 @@ class BufferMemento:
             line.text = text
 
         buffer.row, buffer.col = self.row, self.col
-
-
-class Movement(Child):
-    def execute(self):
-        pass
-
-    def evaluate(self, buffer):
-        pass
-
-
-class InstantMovement(Movement):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.execute()
 
 
 EDITOR = Editor()

@@ -1,28 +1,30 @@
-from classes import *
+from classes import EDITOR, NormalMode
+from motions import Down, Up
 
 
-class VerticalMovement(InstantMovement):
+class VerticalMovement:
+    def __call__(self, parent):
+        self.execute()
+
+    def __init__(self, movement):
+        self.movement = movement
+
     def execute(self):
-        new_row = self.evaluate(EDITOR.buffer)
-        if new_row is not None:
-            EDITOR.buffer.row = new_row
+        if EDITOR.buffer is not None:
+            new_row = self.movement.evaluate(EDITOR.buffer)
+            if new_row is not None:
+                EDITOR.buffer.row = new_row
 
 
-class Down(VerticalMovement):
-    def evaluate(self, buffer):
-        if buffer.row == len(buffer.lines) - 1:
-            return None
-
-        return buffer.row + 1
+class MoveDown(VerticalMovement):
+    def __init__(self):
+        super().__init__(Down())
 
 
-class Up(VerticalMovement):
-    def evaluate(self, buffer):
-        if buffer.row == 0:
-            return None
-
-        return buffer.row - 1
+class MoveUp(VerticalMovement):
+    def __init__(self):
+        super().__init__(Up())
 
 
-NormalMode.KEYMAP["j"] = Down
-NormalMode.KEYMAP["k"] = Up
+NormalMode.KEYMAP["j"] = MoveDown()
+NormalMode.KEYMAP["k"] = MoveUp()

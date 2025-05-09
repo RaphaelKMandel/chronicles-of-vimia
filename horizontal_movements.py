@@ -1,44 +1,61 @@
-from classes import *
+from classes import EDITOR, NormalMode, InstantMovement
+from motions import Left, Right, Zero, Carrot, Dollar, StartWord, EndWord, PrevWord
 
 
 class HorizontalMovement(InstantMovement):
     def execute(self):
-        EDITOR.buffer.col = self.evaluate(EDITOR.buffer)
+        if EDITOR.buffer is not None:
+            new_col = self.movement.evaluate(EDITOR.buffer)
+            if new_col is not None:
+                EDITOR.buffer.col = new_col
 
 
-class Right(HorizontalMovement):
-    def evaluate(self, buffer):
-        max_col = EDITOR.state.max_col()
-        return min(max_col, buffer._col + 1)
+class MoveLeft(HorizontalMovement):
+    def __init__(self):
+        super().__init__(Left())
 
 
-class Left(HorizontalMovement):
-    def evaluate(self, buffer):
-        return max(0, buffer.col - 1)
+class MoveRight(HorizontalMovement):
+    def __init__(self):
+        super().__init__(Right())
 
 
-class Zero(HorizontalMovement):
-    def evaluate(self, buffer):
-        return 0
+class MoveZero(HorizontalMovement):
+    def __init__(self):
+        super().__init__(Zero())
 
 
-class Carrot(HorizontalMovement):
-    def evaluate(self, buffer):
-        for n, char in enumerate(buffer.line):
-            if char != " ":
-                return n
-
-        return None
+class MoveCarrot(HorizontalMovement):
+    def __init__(self):
+        super().__init__(Carrot())
 
 
-class Dollar(HorizontalMovement):
-    def evaluate(self, buffer):
-        return EDITOR.state.max_col()
+class MoveDollar(HorizontalMovement):
+    def __init__(self):
+        super().__init__(Dollar())
 
 
-NormalMode.KEYMAP["l"] = Right
-NormalMode.KEYMAP["h"] = Left
-NormalMode.KEYMAP["0"] = Zero
-NormalMode.KEYMAP["$"] = Dollar
-NormalMode.KEYMAP["^"] = Carrot
-NormalMode.KEYMAP["_"] = Carrot
+class MoveStartWord(HorizontalMovement):
+    def __init__(self):
+        super().__init__(StartWord())
+
+
+class MoveEndWord(HorizontalMovement):
+    def __init__(self):
+        super().__init__(EndWord())
+
+
+class MovePrevWord(HorizontalMovement):
+    def __init__(self):
+        super().__init__(PrevWord())
+
+
+NormalMode.KEYMAP["h"] = MoveLeft()
+NormalMode.KEYMAP["l"] = MoveRight()
+NormalMode.KEYMAP["0"] = MoveZero()
+NormalMode.KEYMAP["^"] = MoveCarrot()
+NormalMode.KEYMAP["_"] = MoveCarrot()
+NormalMode.KEYMAP["$"] = MoveDollar()
+NormalMode.KEYMAP["w"] = MoveStartWord()
+NormalMode.KEYMAP["e"] = MoveEndWord()
+NormalMode.KEYMAP["b"] = MovePrevWord()

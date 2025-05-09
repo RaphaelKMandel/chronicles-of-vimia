@@ -1,38 +1,35 @@
 from classes import *
+from motions import ForwardFind, BackwardFind
 
 
 class FindState(NormalMode):
-    def __init__(self, parent, forward=True):
-        super().__init__(parent)
-        self.forward = forward
-
     def handle_input(self, event):
         self.parent.char = event.unicode
-        self.deactivate()
+        self.parent.finish()
 
 
-class Find(Movement):
-    def __init__(self, parent, forward, offset):
-        super().__init__(parent)
+class Find:
+    LAST_SEARCH = None
+
+    def __call__(self, parent):
+        Find.LAST_SEARCH = self
+        self.state = FindState(self)
+
+    def __init__(self, forward, offset):
         self.char = ""
         self.forward = forward
         self.offset = offset
-        self.state = FindState(self)
 
-    def activate(self):
-        EDITOR.last_search = self
+    def finish(self):
         self.execute()
-        self.deactivate()
-
-    def deactivate(self):
-        self.parent.activate()
+        EDITOR.state = EDITOR.normal
 
     def execute(self, reversed=False):
         forward = self.forward if not reversed else not self.forward
         if forward:
-            new_col = self.forward_search(EDITOR.buffer)
+            new_col = ForwardFind(self.char, self.offset).evaluate(EDITOR.buffer)
         else:
-            new_col = self.backward_search(EDITOR.buffer)
+            new_col = BackwardFind(self.char, self.offset).evaluate(EDITOR.buffer)
 
         if new_col is not None:
             EDITOR.buffer.col = new_col
@@ -54,43 +51,43 @@ class Find(Movement):
 
 
 class FindForward(Find):
-    def __init__(self, parent):
-        super().__init__(parent, forward=True, offset=0)
+    def __init__(self):
+        super().__init__(forward=True, offset=0)
 
 
 class FindBackward(Find):
-    def __init__(self, parent):
-        super().__init__(parent, forward=False, offset=0)
+    def __init__(self):
+        super().__init__(forward=False, offset=0)
 
 
 class FindForwardTo(Find):
-    def __init__(self, parent):
-        super().__init__(parent, forward=True, offset=1)
+    def __init__(self):
+        super().__init__(forward=True, offset=1)
 
 
 class FindBackwardTo(Find):
-    def __init__(self, parent):
-        super().__init__(parent, forward=False, offset=1)
+    def __init__(self):
+        super().__init__(forward=False, offset=1)
 
 
 class RepeatFindForward:
-    def __init__(self, parent):
-        if EDITOR.last_search is not None:
-            EDITOR.last_search.execute(reversed=False)
+    def __call__(self, parent):
+        if Find.LAST_SEARCH is not None:
+            Find.LAST_SEARCH.execute(reversed=False)
 
 
 class RepeatFindBackward:
-    def __init__(self, parent):
-        if EDITOR.last_search is not None:
-            EDITOR.last_search.execute(reversed=True)
+    def __call__(self, parent):
+        if Find.LAST_SEARCH is not None:
+            Find.LAST_SEARCH.execute(reversed=True)
 
 
-NormalMode.KEYMAP["f"] = FindForward
-NormalMode.KEYMAP["F"] = FindBackward
-NormalMode.KEYMAP["t"] = FindForwardTo
-NormalMode.KEYMAP["T"] = FindBackwardTo
-NormalMode.KEYMAP[";"] = RepeatFindForward
-NormalMode.KEYMAP[","] = RepeatFindBackward
+NormalMode.KEYMAP["f"] = FindForward()
+NormalMode.KEYMAP["F"] = FindBackward()
+NormalMode.KEYMAP["t"] = FindForwardTo()
+NormalMode.KEYMAP["T"] = FindBackwardTo()
+NormalMode.KEYMAP[";"] = RepeatFindForward()
+NormalMode.KEYMAP[","] = RepeatFindBackward()
 
 if __name__ == "__main__":
     pass

@@ -1,28 +1,24 @@
 from classes import *
 from actions import Action, CompoundAction
-from horizontal_movements import Right, Carrot, Dollar
+from horizontal_movements import MoveRight, MoveCarrot, MoveDollar
 from instant_actions import Backspace, Delete, InsertChar
 
 
 class EnterInsertMode:
     def __init__(self, parent):
         self.parent = parent
-        self.execute()
 
     def execute(self):
-        self.state = InsertMode(self.parent)
+        self.state = InsertMode(self)
 
-    def get_actions(self):
-        return self.state.actions
+    def finish(self):
+        self.parent.finish(self.state.actions)
+
 
 
 class LeaveInsertMode:
-    def __init__(self, parent):
-        self.parent = parent
-        self.execute()
-
     def execute(self):
-        EDITOR.state = self.parent
+        EDITOR.pop()
 
 
 class InsertMode(State):
@@ -38,7 +34,7 @@ class InsertMode(State):
 
     def handle_input(self, event):
         if event.key == pygame.K_ESCAPE:
-            self.parent.deactivate()
+            self.parent.finish()
             return
 
         if event.key == pygame.K_BACKSPACE:
@@ -69,32 +65,41 @@ class InsertMode(State):
 
 class InsertAction(CompoundAction):
     def __init__(self, parent):
-        super().__init__(parent)
+        super().__init__()
         self.register()
-        self.enter = EnterInsertMode(self)
-        self.actions.append(self.enter)
+        action = EnterInsertMode(self)
+        self.actions.append(action)
+        action.execute()
 
-    def deactivate(self):
-        self.actions += self.enter.get_actions()
-        self.actions.append(LeaveInsertMode(self.parent))
+    def finish(self, actions):
+        self.actions += actions
+        action = LeaveInsertMode()
+        self.actions.append(action)
+        action.execute()
 
 
 class AppendAction(InsertAction):
     def __init__(self, parent):
         super().__init__(parent)
-        self.actions.append(Right(self))
+        action = MoveRight()
+        self.actions.append(action)
+        action.execute()
 
 
 class InsertAtStart(InsertAction):
     def __init__(self, parent):
         super().__init__(parent)
-        self.actions.append(Carrot(self))
+        action = MoveCarrot()
+        self.actions.append(action)
+        action.execute()
 
 
 class AppendAtEnd(InsertAction):
     def __init__(self, parent):
         super().__init__(parent)
-        self.actions.append(Dollar(self))
+        action = MoveDollar()
+        self.actions.append(action)
+        action.execute()
 
 
 NormalMode.KEYMAP["i"] = InsertAction
