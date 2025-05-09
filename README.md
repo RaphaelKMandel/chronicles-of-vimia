@@ -10,7 +10,7 @@ As you progress and get better, using fewer keystrokes should happen naturally, 
 Before you ask, the game is implemented in python for a few reason:
 1. Because I wanted to
 2. I am a hobbyist/aspiring software developer who is learning, and I wanted a medium sized project where I could practice
-   using Design Patters, such as State, Command, Memento, Template Methods, etc...
+   using Design Patterns, such as State, Command, Memento, Strategy, Template Methods, etc...
 3. I wanted more game-style effects, such as falling buffers, explody effects, etc...
 4. I thought it would be useful to have this library for other vim-related games
 
@@ -36,7 +36,7 @@ python main.py
 - Use Vim commands to delete text in red and insert mode to add text in green 
 - Score points by correctly typing and editing the falling text before it hits the ground
 - Your keystrokes are counted so use as few keystrokes as possible to get the highest score
-- If a buffer hits the ground, your keystrokes are debited
+- Dont let the buffers hit the ground, or your keystrokes will be penalized!
 - Quit the game using :q
 - Start a new game using :n
 
@@ -52,4 +52,4 @@ python main.py
 3. More than one falling buffer at a time
 4. Better graphics, effects, etc...
 5. A larger library of buffer spawners to teach certain chords/patterns
-6. Adding new spawners as score increases 
+6. Adding new spawners as score increases
