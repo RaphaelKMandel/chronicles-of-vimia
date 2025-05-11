@@ -115,6 +115,7 @@ class PrevWordAction:
 
 
 NormalMode.KEYMAP["d"] = DeleteOperator
+
 OperatorMode.KEYMAP["f"] = FindForwardAction
 OperatorMode.KEYMAP["F"] = FindBackwardAction
 OperatorMode.KEYMAP["t"] = FindForwardToAction
