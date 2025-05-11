@@ -2,70 +2,7 @@ from classes import *
 from motions import Find
 
 
-class FindState(NormalMode):
-    def __init__(self, parent):
-        super().__init__()
-        self.parent = parent
-
-    def handle_input(self, event):
-        self.finish(event.unicode)
-
-    def finish(self, char):
-        EDITOR.pop()
-        self.parent.finish(char)
-
-
-class FindMotionBuilder:
-    def __init__(self, parent, forward, offset):
-        self.parent = parent
-        self.forward = forward
-        self.offset = offset
-        self.state = FindState(self)
-
-    def finish(self, char):
-        if char.isprintable():
-            motion = Find(char, self.forward, self.offset)
-            self.parent.finish(motion)
-
-
-class FindMotion:
-    def __init__(self, parent, forward, offset):
-        self.parent = parent
-        self.motion = None
-        FindMotionBuilder(self, forward=forward, offset=offset)
-
-    def finish(self, motion):
-        FindMovement.LAST = FindMovement(motion)
-        self.motion = motion
-        self.parent.finish()
-
-    def evaluate(self, buffer, reversed=False):
-        return self.motion.evaluate(buffer, reversed=reversed)
-
-
-class FindForward(FindMotion):
-    def __init__(self, parent):
-        super().__init__(parent, forward=True, offset=0)
-
-
-class FindBackward(FindMotion):
-    def __init__(self, parent):
-        super().__init__(parent, forward=False, offset=0)
-
-
-class FindForwardTo(FindMotion):
-    def __init__(self, parent):
-        super().__init__(parent, forward=True, offset=1)
-
-
-class FindBackwardTo(FindMotion):
-    def __init__(self, parent):
-        super().__init__(parent, forward=False, offset=1)
-
-
 class FindMovement:
-    LAST = None
-
     def __init__(self, motion):
         self.motion = motion
 
@@ -80,34 +17,34 @@ class FindMovement:
 
 class FindForwardMovement(FindMovement):
     def __init__(self):
-        super().__init__(FindForward(self))
+        super().__init__(Find(self, forward=True, offset=0))
 
 
 class FindBackwardMovement(FindMovement):
     def __init__(self):
-        super().__init__(FindBackward(self))
+        super().__init__(Find(self, forward=False, offset=0))
 
 
 class FindForwardToMovement(FindMovement):
     def __init__(self):
-        super().__init__(FindForwardTo(self))
+        super().__init__(Find(self, forward=True, offset=1))
 
 
 class FindBackwardToMovement(FindMovement):
     def __init__(self):
-        super().__init__(FindBackwardTo(self))
+        super().__init__(Find(self, forward=False, offset=1))
 
 
 class RepeatFindForwardMovement:
     def __init__(self):
-        if FindMovement.LAST is not None:
-            FindMovement.LAST.execute(reversed=False)
+        if Find.LAST is not None:
+            FindMovement(Find.LAST).execute(reversed=False)
 
 
 class RepeatFindBackwardMovement:
     def __init__(self):
-        if FindMovement.LAST is not None:
-            FindMovement.LAST.execute(reversed=True)
+        if Find.LAST is not None:
+            FindMovement(Find.LAST).execute(reversed=True)
 
 
 NormalMode.KEYMAP["f"] = FindForwardMovement

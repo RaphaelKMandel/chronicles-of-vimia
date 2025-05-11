@@ -1,6 +1,5 @@
 from classes import *
-from motions import StartWord, EndWord, PrevWord
-from finds import FindForward, FindBackward, FindForwardTo, FindBackwardTo
+from motions import StartWord, EndWord, PrevWord, Find
 from actions import CompoundAction
 
 
@@ -64,22 +63,22 @@ class FindAction:
 
 class FindForwardAction(FindAction):
     def __init__(self, parent):
-        super().__init__(parent, FindForward(self))
+        super().__init__(parent, Find(self, forward=True, offset=0))
 
 
 class FindBackwardAction(FindAction):
     def __init__(self, parent):
-        super().__init__(parent, FindBackward(self))
+        super().__init__(parent, Find(self, forward=False, offset=0))
 
 
 class FindForwardToAction(FindAction):
     def __init__(self, parent):
-        super().__init__(parent, FindForwardTo(self))
+        super().__init__(parent, Find(self, forward=True, offset=1))
 
 
 class FindBackwardToAction(FindAction):
     def __init__(self, parent):
-        super().__init__(parent, FindBackwardTo(self))
+        super().__init__(parent, Find(self, forward=False, offset=1))
 
 
 class StartWordAction:

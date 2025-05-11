@@ -1,3 +1,4 @@
+from classes import FindState
 from word_parser import WordParser
 
 
@@ -53,10 +54,20 @@ class Up(Motion):
 
 
 class Find(Motion):
-    def __init__(self, char, forward, offset):
-        self.char = char
+    LAST = None
+
+    def __init__(self, parent, forward, offset):
+        self.parent = parent
         self.forward = forward
         self.offset = offset
+        self.char = None
+        self.state = FindState(self)
+
+    def finish(self, char):
+        if char.isprintable():
+            Find.LAST = self
+            self.char = char
+            self.parent.finish()
 
     def evaluate(self, buffer, reversed=False):
         forward = self.forward if not reversed else not self.forward
