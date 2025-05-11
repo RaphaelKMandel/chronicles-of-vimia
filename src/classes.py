@@ -13,7 +13,6 @@ class Editor:
         pygame.display.set_caption("Chronicles of Vimia")
         self.clock = pygame.time.Clock()
         self.running = True
-        self.last_action = None
         self.spawner = RandomSpawner(self)
         self.lost = False
         self.count = 0
@@ -186,6 +185,17 @@ class LostMode(State):
     def max_col(self):
         return 0
 
+class FindState(NormalMode):
+    def __init__(self, parent):
+        super().__init__()
+        self.parent = parent
+
+    def handle_input(self, event):
+        self.finish(event.unicode)
+
+    def finish(self, char):
+        EDITOR.pop()
+        self.parent.finish(char)
 
 class Movement:
     def execute(self):
