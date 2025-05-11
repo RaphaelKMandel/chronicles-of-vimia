@@ -59,7 +59,7 @@ class Editor:
 
         coords = FONT.render(f"{self.history}", True, TEXT_COLOR)
         text_rect = coords.get_rect()
-        text_rect.bottomleft = (WIDTH//2, HEIGHT)
+        text_rect.bottomleft = (WIDTH // 2, HEIGHT)
         SCREEN.blit(coords, text_rect)
 
     def draw(self):
@@ -161,6 +161,18 @@ class State:
     def draw(self):
         EDITOR.draw_command_line(self.NAME)
 
+
+class NormalMode(State):
+    KEYMAP = {}
+
+    def handle_input(self, event):
+        if event.unicode.isprintable():
+            EDITOR.history = event.unicode
+
+        super().handle_input(event)
+
+    def draw(self):
+        super().draw()
         # Draw cursor as a block
         if EDITOR.buffer:
             top, left = EDITOR.buffer.get_coord(EDITOR.buffer.row, EDITOR.buffer.col)
@@ -172,16 +184,6 @@ class State:
             # Draw the character under the cursor in a different color
             char_surface = FONT.render(EDITOR.buffer.line[EDITOR.buffer.col], True, CURSOR_TEXT_COLOR)
             SCREEN.blit(char_surface, (left, top))
-
-
-class NormalMode(State):
-    KEYMAP = {}
-
-    def handle_input(self, event):
-        if event.unicode.isprintable():
-            EDITOR.history = event.unicode
-
-        super().handle_input(event)
 
 
 class LostMode(State):
