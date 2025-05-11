@@ -10,7 +10,7 @@
 
 
 # Features:
-- show keys at bottom
+- [x] show keys at bottom
 - action/movement counts?
 - f,dt.
 - split buffer into odd lines and put inserted text on new line

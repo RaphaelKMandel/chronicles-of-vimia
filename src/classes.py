@@ -19,6 +19,7 @@ class Editor:
         self.credit = 20
         self.buffers = {}
         self.states = []
+        self.history = ""
 
     @property
     def state(self):
@@ -53,8 +54,13 @@ class Editor:
         if self.buffer:
             coords = FONT.render(f"{self.buffer.row}:{self.buffer.col}", True, TEXT_COLOR)
             text_rect = coords.get_rect()
-            text_rect.bottomleft = (WIDTH // 2, HEIGHT)
+            text_rect.bottomleft = (WIDTH - 100, HEIGHT)
             SCREEN.blit(coords, text_rect)
+
+        coords = FONT.render(f"{self.history}", True, TEXT_COLOR)
+        text_rect = coords.get_rect()
+        text_rect.bottomleft = (WIDTH//2, HEIGHT)
+        SCREEN.blit(coords, text_rect)
 
     def draw(self):
         SCREEN.fill(BACKGROUND_COLOR)
@@ -83,8 +89,10 @@ class Editor:
 
             if event.type == pygame.KEYDOWN and not event.unicode == "":
                 self.count += 1
-                print(self.state, event, self.credit, self.count)
+                if event.unicode.isprintable():
+                    self.history += event.unicode
                 self.state.handle_input(event)
+                print(EDITOR.history, self.state, event, self.credit, self.count)
 
     def run(self):
         self.normal = NormalMode()
@@ -119,7 +127,7 @@ class Editor:
 
 
 class State:
-    NAME = "None"
+    NAME = "NORMAL"
 
     def __init__(self):
         super().__init__()
@@ -130,6 +138,9 @@ class State:
 
     def deactivate(self):
         EDITOR.pop()
+
+    def max_col(self):
+        return len(EDITOR.buffer.line) - 1
 
     def get_command(self, event):
         if event.key == K_ESCAPE:
@@ -150,17 +161,6 @@ class State:
     def draw(self):
         EDITOR.draw_command_line(self.NAME)
 
-
-class NormalMode(State):
-    KEYMAP = {}
-    NAME = "NORMAL"
-
-    def max_col(self):
-        return len(EDITOR.buffer.line) - 1
-
-    def draw(self):
-        super().draw()
-
         # Draw cursor as a block
         if EDITOR.buffer:
             top, left = EDITOR.buffer.get_coord(EDITOR.buffer.row, EDITOR.buffer.col)
@@ -174,18 +174,30 @@ class NormalMode(State):
             SCREEN.blit(char_surface, (left, top))
 
 
+class NormalMode(State):
+    KEYMAP = {}
+
+    def handle_input(self, event):
+        if event.unicode.isprintable():
+            EDITOR.history = event.unicode
+
+        super().handle_input(event)
+
+
 class LostMode(State):
     KEYMAP = {}
     NAME = "GAME OVER"
 
     def __init__(self):
         super().__init__()
+        EDITOR.history = ""
         self.restart = False
 
     def max_col(self):
         return 0
 
-class FindState(NormalMode):
+
+class FindState(State):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
@@ -196,6 +208,7 @@ class FindState(NormalMode):
     def finish(self, char):
         EDITOR.pop()
         self.parent.finish(char)
+
 
 class Movement:
     def execute(self):
