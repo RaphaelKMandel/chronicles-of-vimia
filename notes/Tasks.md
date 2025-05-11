@@ -1,47 +1,54 @@
 # Tasks
 - [x] Game is global?
 - [x] Rename Game to Editor?
-- [ ] Syntax Highlighting?
 - [x] Coloring? Treat each char/word as its own class/color?
 - [x] Render cursor in Modes directly; going to be required for visual mode
-- [ ] Insert mode saves inserted text as action
+- [x] Insert mode saves inserted text as action
 - [x] Make Action class?
 - [x] Undo/Redo?
 - Buffer class:
   - [x] method to determine x,y location given row,col
   - [ ] method to determine text inside/outside start finish
-  - [ ] give it a name, and allow navigation with :e <file> with tabs
+  - [x] give it a name, and allow navigation with :e <file> with tabs
 - [ ] Arcade vs Campaign mode
-- [ ] Buffer spawner class
+- [x] Buffer spawner class
 - [ ] Change Action class to Change class?
-- [ ] Make demo file to demonstrate concept
+- [x] Make demo file to demonstrate concept
 - [ ] Add counts to things
-- [ ] Insert mode creates list of actions (like a macro)?
-  - [ ] Insert Action to insert a char?
-- [ ] Classes for move actions, like delete, change, etc..
-
+- [x] Insert mode creates list of actions (like a macro)?
+  - [x] Insert Action to insert a char?
+- [x] Classes for move actions, like delete, change, etc..
+- [x] show keys at bottom
+- [ ] f,dt.
+- [ ] split buffer into odd lines and put inserted text on new line
+- [x] Make Editor.state a stack, with properties to get and set the state stack
 
 # Approach
-- How to handle states/modes and operations
-- At present, states take focus, overwriting current state of editor
-- Command pattern? ; repeats a search, . repeats an action
-  - Save all inputs to a command except the text to operate on (as that can be different)
-- Should state be a stack?
-  - Need to repeat Everything from Normal mode insert mode, and back to normal mode
-- Should each composite command have internal states?
-- Want to be able to write pressed keys as part of a command on the fly in bottom right
+
+## States
+  - State pattern to control inputs
+  - Editor state is a stack, with the last value handling inputs
+  - Editor has properties to handle current state and setting of new state
+  - Editor.pop backs up one state
+  - States receive parent as input, and call parent.finish when state exits
 
 
-# Action 
-- Uses command pattern to encapsulate an action
-- __init__ method starts everything off; does not change to OperatorState
-- activate method contains parent class logic while execute method contains logic for child classes
-- activate method will be called when OperatorState deactivates
+## Motions
+  - Motions contain all information needed to perform the motion
+  - Motions contain an `evaluate()` method which computes the motion 
+  - `evaluate()` takes in a buffer and any other arguments needed, such as `reversed` in `Find`
+  - If a motion requires further inputs, the __init__() method should change the state
+  - The motion should be finished setting up with the finish() method
 
+## Movements
+- have a `motion` property, which is used in `execute()` to move the cursor
+  - `execute()` executes the movement
 
-- Initialization Step
-- Execution Step
+## Command Pattern
+  - Actions obey the command pattern, encapsulating an action
+  - have a `motion` property, which is used in `execute()` to compute the domain of the command
+  - `execute()` executes the encapsulated action
 
-# Methods
-- 
-
+## Finds and Actions
+  - Have a LAST class variable to store the last find or action, to be reused
+  - The `;` and `,` keys build a new find using the LAST class variable
