@@ -128,9 +128,25 @@ class EndWordDeleteSpawner(Spawner):
         super().__init__(editor, name, [text], [target], 8)
 
 
+class DeleteWordSpawner(Spawner):
+    def __init__(self, editor):
+        name = None
+        target = "Feel free to delete all the repeated words in this sentence."
+        text = "Feel free free to delete all all the repeated words words in this words sentence."
+        super().__init__(editor, name, [text], [target], 16)
+
+
 class SubsSpawner(Spawner):
     def __init__(self, editor):
         name = None
         text = 'var foo = "method("+arg1+","+arg2+");'
         target = 'var foo = "method(" + arg1 + "," + arg2 + ");'
         super().__init__(editor, name, [text], [target], 12)
+
+
+class ChangeWordSpawner(Spawner):
+    def __init__(self, editor):
+        name = None
+        target = "The more wine you have, the better your wine tastes."
+        text = "The more food you have, the better your food tastes."
+        super().__init__(editor, name, [text], [target], 8)
