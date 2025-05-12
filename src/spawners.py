@@ -22,23 +22,41 @@ class Spawner:
         editor.buffers[buffer.name] = buffer
 
 
-class EndSpawner(Spawner):
-    TEXTS = [
-        "This sentence has an error at the end."
-    ]
-
+class StartSpawner(Spawner):
     def __init__(self, editor):
-        target = self.TEXTS[0]
-        text = target + letter()
+        name = None
+        texts = [
+            "This is the first item.",
+            "This is the second item.",
+            "This is the third item."
+        ]
+        prefix = choice(["-", "+", "[ ]", "[x]"]) + " "
+        targets = [prefix + text for text in texts]
+        super().__init__(editor, name=name, texts=texts, targets=targets, score=12)
 
-        super().__init__(editor, name="a", texts=["Look down", text], targets=["Look down", target], score=3)
+
+class EndSpawner(Spawner):
+    def __init__(self, editor):
+        name = None
+        targets = [
+            "(1) Open the peanut butter.",
+            "(2) Put a knife in the peanut butter.",
+            "(3) Spread the peanut butter on bread."
+        ]
+        texts = [
+            "(1) Open the peanut butter",
+            "(2) Put a knife in the peanut butter",
+            "(3) Spread the peanut butter on bread"
+        ]
+
+        super().__init__(editor, name=name, texts=texts, targets=targets, score=12)
 
 
-class FindSpawner(Spawner):
+class FindDeleteCharSpawner(Spawner):
     TEXTS = [
         "The quick brown fox jumped.",
         "This is a (sample) text.",
-        "Don't choose this line, you silly person."
+        "Delete all the random characters!"
     ]
 
     def __init__(self, editor):
@@ -53,14 +71,47 @@ class FindSpawner(Spawner):
             inds.remove(ind)
             text = text[:ind] + l + text[ind:]
 
-        super().__init__(editor, name, [text], [target], count * 3)
+        super().__init__(editor, name, [text], [target], count * 4)
 
     def get_name(self):
         return letter() + ".txt"
 
-class DeleteFindSpawner(Spawner):
+
+class FindDeleteToSpawner(Spawner):
     def __init__(self, editor):
         name = None
-        text = "You need to delete [this)this unnecessary word."
-        target = "You need to delete this unnecessary word."
-        super().__init__(editor, name, [text], [target], 4)
+        text = "This sentence is short, and this part is not needed."
+        target = "This sentence is short."
+        super().__init__(editor, name, [text], [target], 10)
+
+
+class StartWordInsertSpawner(Spawner):
+    def __init__(self, editor):
+        name = None
+        text = "The test sults still needed finishing to avoid percussions before submission."
+        target = "The test results still needed refinishing to avoid repercussions before resubmission."
+        super().__init__(editor, name, [text], [target], 16)
+
+
+class EndWordInsertSpawner(Spawner):
+    def __init__(self, editor):
+        name = None
+        text = "The results of the test are indicat that the test approach was valid."
+        target = "The results of the testing are indicating that the testing approach was valid."
+        super().__init__(editor, name, [text], [target], 16)
+
+
+class StartWordDeleteSpawner(Spawner):
+    def __init__(self, editor):
+        name = None
+        text = "I reinstalled my everlasting photosynthesis."
+        target = "I installed my lasting synthesis."
+        super().__init__(editor, name, [text], [target], 8)
+
+
+class EndWordDeleteSpawner(Spawner):
+    def __init__(self, editor):
+        name = None
+        text = "Starting going for lasting night."
+        target = "Start going for last night."
+        super().__init__(editor, name, [text], [target], 8)
