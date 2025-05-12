@@ -1,11 +1,20 @@
+import sys
+import inspect
+
 from random import choice
 from buffers import Buffer, Line
+
+
+def get_spawners():
+    self = sys.modules[__name__]
+    return [obj for name, obj in inspect.getmembers(self, inspect.isclass) if obj.__module__ == __name__]
 
 
 class RandomSpawner:
     def __init__(self, editor, spawners=None):
         self.editor = editor
-        self.spawners = spawners if spawners else []
+        self.spawners = spawners if spawners else get_spawners()
+        print(self.spawners)
 
     def spawn(self):
         return choice(self.spawners)(self.editor)
