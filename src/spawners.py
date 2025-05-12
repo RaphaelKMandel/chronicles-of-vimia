@@ -124,3 +124,11 @@ class EndWordDeleteSpawner(Spawner):
         text = "Starting going for lasting night."
         target = "Start going for last night."
         super().__init__(editor, name, [text], [target], 8)
+
+
+class SubsSpawner(Spawner):
+    def __init__(self, editor):
+        name = None
+        text = 'var foo = "method("+arg1+","+arg2+");'
+        target = 'var foo = "method(" + arg1 + "," + arg2 + ");'
+        super().__init__(editor, name, [text], [target], 12)
