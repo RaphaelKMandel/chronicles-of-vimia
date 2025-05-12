@@ -41,6 +41,25 @@ class Period(InstantAction):
         Action.LAST_ACTION.execute()
 
 
+class Replace(Action):
+    def __init__(self):
+        self.char = None
+        CharState(self)
+
+    def finish(self, char):
+        if char.isprintable():
+            self.char = char
+            self.execute()
+
+    def execute(self):
+        if self.char is not None:
+            col = EDITOR.buffer.col
+            line = EDITOR.buffer.line
+            EDITOR.buffer.line = line[:col] + self.char + line[col+1:]
+
+
+
 NormalMode.KEYMAP["x"] = Delete()
 NormalMode.KEYMAP["X"] = Backspace()
 NormalMode.KEYMAP["."] = Period()
+NormalMode.KEYMAP["r"] = Replace

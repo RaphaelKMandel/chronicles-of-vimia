@@ -78,6 +78,24 @@ class InsertAction(CompoundAction):
         action.execute()
 
 
+class SubsAction(CompoundAction):
+    def __init__(self):
+        super().__init__()
+        self.register()
+        action = Delete()
+        self.actions.append(action)
+        action.execute()
+        action = EnterInsertMode(self)
+        self.actions.append(action)
+        action.execute()
+
+    def finish(self, actions):
+        self.actions += actions
+        action = LeaveInsertMode()
+        self.actions.append(action)
+        action.execute()
+
+
 class AppendAction(InsertAction):
     def __init__(self):
         super().__init__()
@@ -104,5 +122,6 @@ class AppendAtEnd(InsertAction):
 
 NormalMode.KEYMAP["i"] = InsertAction
 NormalMode.KEYMAP["a"] = AppendAction
+NormalMode.KEYMAP["s"] = SubsAction
 NormalMode.KEYMAP["I"] = InsertAtStart
 NormalMode.KEYMAP["A"] = AppendAtEnd
