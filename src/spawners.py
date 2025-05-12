@@ -7,7 +7,8 @@ from buffers import Buffer, Line
 
 def get_spawners():
     self = sys.modules[__name__]
-    return [obj for name, obj in inspect.getmembers(self, inspect.isclass) if obj.__module__ == __name__]
+    return [obj for name, obj in inspect.getmembers(self, inspect.isclass) if
+            obj.__module__ == __name__ and name != "Spawner"]
 
 
 class RandomSpawner:
@@ -17,7 +18,9 @@ class RandomSpawner:
         print(self.spawners)
 
     def spawn(self):
-        return choice(self.spawners)(self.editor)
+        ch = choice(self.spawners)
+        print(ch)
+        return ch(self.editor)
 
 
 def letter():
