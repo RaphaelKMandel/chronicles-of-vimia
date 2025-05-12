@@ -23,5 +23,6 @@ if __name__ == "__main__":
     # EDITOR.add_buffer("main.py", lines, test_lines)
     # EDITOR.buffer = EDITOR.buffers["main.py"]
 
-    EDITOR.spawner.spawners = [FindSpawner, EndSpawner, DeleteFindSpawner]
+    # EDITOR.spawner.spawners = [FindSpawner, EndSpawner, DeleteFindSpawner]
+    # EDITOR.spawner.spawners = [StartWordDeleteSpawner]
     EDITOR.run()
