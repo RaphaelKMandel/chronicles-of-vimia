@@ -1,8 +1,10 @@
 from difflib import SequenceMatcher
 
+SPACE = "_"
+
 
 def replace(string):
-    return string.replace(" ", "\u2423")
+    return string.replace(" ", SPACE)
 
 
 def get_diff(current, target):
@@ -19,7 +21,7 @@ def get_diff(current, target):
             )
         elif op == "insert":
             words.append(
-                (op, target[s2:f2])
+                (op, replace(target[s2:f2]))
             )
 
         elif op == "delete":

@@ -19,6 +19,7 @@ class Line:
         self.words = []
         self.target = target
         self.text = text
+        self.parent = None
 
     def is_solved(self):
         return self.text == self.target
@@ -40,7 +41,6 @@ class Line:
         for op, string in self.words:
             dy = 0
             if op == "insert":
-                string = "^" + string
                 dy = -CHAR_HEIGHT
 
             text_surface = FONT.render(string, True, Line.COLORS[op])
@@ -61,10 +61,17 @@ class Buffer:
         self.undo_list = []
         self.redo_list = []
         self.score = score
+        self.register()
+
+    def register(self):
+        for line in self.lines:
+            line.parent = self
+
+    def max_width(self):
+        return max([max(len(line.target), len(line.text)) for line in self.lines])
 
     def get_rect(self):
-        max_width = max([len(line.text) for line in self.lines])
-        return self.x, self.y, max_width * CHAR_WIDTH, 2 * CHAR_HEIGHT * len(self.lines)
+        return self.x, self.y, self.max_width() * CHAR_WIDTH, 2 * CHAR_HEIGHT * len(self.lines)
 
     def get_coord(self, row, col):
         return (
