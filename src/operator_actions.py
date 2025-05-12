@@ -1,6 +1,7 @@
 from classes import *
+from inserts import InsertActionBase
 from motions import StartWord, EndWord, PrevWord, Find
-from actions import CompoundAction
+from actions import Action
 
 
 class OperatorMode(NormalMode):
@@ -21,12 +22,12 @@ class OperatorMode(NormalMode):
         self.parent.finish(motion)
 
 
-class OperatorAction(CompoundAction):
+class OperatorAction(Action):
     def __init__(self):
         super().__init__()
         self.register()
         self.motion = None
-        self.state = OperatorMode(self)
+        OperatorMode(self)
 
     def finish(self, motion):
         self.motion = motion
@@ -46,6 +47,21 @@ class DeleteOperator(OperatorAction):
             line = buffer.line
             buffer.line = line[:col] + line[new_col:]
             buffer.col = col
+
+
+class ChangeOperator(DeleteOperator):
+    def __init__(self):
+        super().__init__()
+        self.insert = None
+
+    def finish(self, motion):
+        self.motion = motion
+        super().execute()
+        self.insert = InsertActionBase()
+
+    def execute(self):
+        super().execute()
+        self.insert.execute()
 
 
 class FindAction:
@@ -115,6 +131,7 @@ class PrevWordAction:
 
 
 NormalMode.KEYMAP["d"] = DeleteOperator
+NormalMode.KEYMAP["c"] = ChangeOperator
 
 OperatorMode.KEYMAP["f"] = FindForwardAction
 OperatorMode.KEYMAP["F"] = FindBackwardAction

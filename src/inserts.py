@@ -63,10 +63,9 @@ class InsertMode(State):
         pygame.draw.rect(SCREEN, CURSOR_COLOR, cursor_rect)
 
 
-class InsertAction(CompoundAction):
+class InsertActionBase(CompoundAction):
     def __init__(self):
         super().__init__()
-        self.register()
         action = EnterInsertMode(self)
         self.actions.append(action)
         action.execute()
@@ -76,6 +75,12 @@ class InsertAction(CompoundAction):
         action = LeaveInsertMode()
         self.actions.append(action)
         action.execute()
+
+
+class InsertAction(InsertActionBase):
+    def __init__(self):
+        self.register()
+        super().__init__()
 
 
 class SubsAction(CompoundAction):
