@@ -18,9 +18,8 @@ class RandomSpawner:
         print(self.spawners)
 
     def spawn(self):
-        ch = choice(self.spawners)
-        print(ch)
-        return ch(self.editor)
+        cls = choice(self.spawners)
+        return cls(self.editor)
 
 
 def letter():
