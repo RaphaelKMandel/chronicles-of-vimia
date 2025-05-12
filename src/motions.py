@@ -1,4 +1,4 @@
-from classes import FindState
+from classes import CharState
 from word_parser import WordParser
 
 
@@ -61,7 +61,7 @@ class Find(Motion):
         self.forward = forward
         self.offset = offset
         self.char = None
-        self.state = FindState(self)
+        self.state = CharState(self)
 
     def finish(self, char):
         if char.isprintable():

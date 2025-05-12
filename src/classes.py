@@ -199,7 +199,7 @@ class LostMode(State):
         return 0
 
 
-class FindState(State):
+class CharState(State):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
