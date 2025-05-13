@@ -1,13 +1,7 @@
-from constants import *
-from commands import *
-from horizontal_movements import *
-from vertical_movements import *
-from inserts import *
-from finds import *
-from mementos import *
-from instant_actions import *
-from operator_actions import *
-from spawners import *
+from src.core.editors import Editor
+from src.spawners.spawners import *
+from src.core.keybinds import *
+
 
 if __name__ == "__main__":
     # lines = [
@@ -24,5 +18,9 @@ if __name__ == "__main__":
     # EDITOR.buffer = EDITOR.buffers["main.py"]
 
     # EDITOR.spawner.spawners = [FindSpawner, EndSpawner, DeleteFindSpawner]
-    # EDITOR.spawner.spawners = [StartWordDeleteSpawner]
-    EDITOR.run()
+
+    editor = Editor()
+    editor.spawner = RandomSpawner(editor)
+    # editor.spawner.spawners = [ChangeWordSpawner]
+    set_keymaps()
+    editor.run()

@@ -1,8 +1,11 @@
-from classes import CharState
-from word_parser import WordParser
+from src.core.states import CharMode
+from src.core.util.word_parser import WordParser
 
 
 class Motion:
+    def __init__(self, editor):
+        self.editor = editor
+
     def evaluate(self, buffer):
         raise NotImplementedError()
 
@@ -53,21 +56,33 @@ class Up(Motion):
         return buffer.row - 1
 
 
-class Find(Motion):
-    LAST = None
-
-    def __init__(self, parent, forward, offset):
+class Char(Motion):
+    def __init__(self, editor, parent):
+        super().__init__(editor)
         self.parent = parent
-        self.forward = forward
-        self.offset = offset
         self.char = None
-        self.state = CharState(self)
+        CharMode(editor, self)
 
     def finish(self, char):
         if char.isprintable():
-            Find.LAST = self
             self.char = char
             self.parent.finish()
+
+    def evaluate(self, buffer):
+        pass
+
+
+class Find(Char):
+    LAST = None
+
+    def __init__(self, editor, parent, forward, offset):
+        self.forward = forward
+        self.offset = offset
+        super().__init__(editor, parent)
+
+    def finish(self, char):
+        Find.LAST = self
+        super().finish(char)
 
     def evaluate(self, buffer, reversed=False):
         forward = self.forward if not reversed else not self.forward

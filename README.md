@@ -49,14 +49,15 @@ python main.py
 
 ## Current Features
 
-1. Motions (h, j, k, l, f, t, w, e, b) and Commands (d, .)
-2. An Arcade mode, where users shoot for the highest score and new types of puzzles are added as score increases
+1. Motions (h, j, k, l, f, t, w, e, b, 0, ^, _, and $) and Commands (d, c, and .)
+2. An Arcade mode, where users shoot for the highest score 
 
 ## Planned Features
 
 1. A campaign mode, where users can level up by acquiring motions
-2. Text objects (iw, aw, ap) and associated spawners
-3. More than one falling buffer at a time
-4. Better graphics, effects, etc...
-5. A larger library of buffer spawners to teach certain chords/patterns
-6. Adding new spawners as score increases
+2. A training mode, where puzzles are generated to get practice on a certain motion or command
+3. Text objects (iw, aw, ap) and associated spawners
+4. More than one falling buffer at a time
+5. Better graphics, effects, etc...
+6. A larger library of buffer spawners to teach certain chords/patterns
+7. Adding new spawners as score increases

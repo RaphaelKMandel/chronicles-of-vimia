@@ -2,6 +2,7 @@ import pygame
 
 # Initialize pygame
 pygame.init()
+pygame.display.set_caption("Chronicles of Vimia")
 
 # Repeat keys
 pygame.key.set_repeat(500, 50)
@@ -11,6 +12,9 @@ WIDTH, HEIGHT = 1600, 900
 FPS = 60
 FONT_SIZE = 32
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+
+# Game Objects
+CLOCK = pygame.time.Clock()
 
 # Colors
 WHITE = (255, 255, 255)

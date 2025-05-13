@@ -1,33 +1,33 @@
-from classes import *
-from inserts import InsertActionBase
-from motions import StartWord, EndWord, PrevWord, Find
-from actions import Action
+from src.core.states import *
+from src.core.changes import Change
+from src.core.changes.inserts import InsertModeChange
+from src.core.motions import StartWord, EndWord, PrevWord, Find
 
 
 class OperatorMode(NormalMode):
     KEYMAP = {}
 
-    def __init__(self, parent):
-        super().__init__()
+    def __init__(self, editor, parent):
+        super().__init__(editor)
         self.parent = parent
         self.motion = None
 
     def handle_input(self, event):
         command = self.get_command(event)
         if command is not None:
-            command(self)
+            command(self.editor, self)
 
     def finish(self, motion):
-        EDITOR.pop()
+        self.editor.pop()
         self.parent.finish(motion)
 
 
-class OperatorAction(Action):
-    def __init__(self):
-        super().__init__()
+class OperatorAction(Change):
+    def __init__(self, editor):
+        super().__init__(editor)
         self.register()
         self.motion = None
-        OperatorMode(self)
+        OperatorMode(editor, self)
 
     def finish(self, motion):
         self.motion = motion
@@ -36,7 +36,7 @@ class OperatorAction(Action):
 
 class DeleteOperator(OperatorAction):
     def execute(self):
-        buffer = EDITOR.buffer
+        buffer = self.editor.buffer
         row, col = buffer.row, buffer.col
         new_row, new_col = self.motion.evaluate(buffer)
         if row == new_row and new_col is not None:
@@ -50,14 +50,14 @@ class DeleteOperator(OperatorAction):
 
 
 class ChangeOperator(DeleteOperator):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, editor):
+        super().__init__(editor)
         self.insert = None
 
     def finish(self, motion):
         self.motion = motion
         super().execute()
-        self.insert = InsertActionBase()
+        self.insert = InsertModeChange(self.editor)
 
     def execute(self):
         super().execute()
@@ -65,7 +65,8 @@ class ChangeOperator(DeleteOperator):
 
 
 class FindAction:
-    def __init__(self, parent, motion):
+    def __init__(self, editor, parent, motion):
+        self.editor = editor
         self.parent = parent
         self.motion = motion
 
@@ -78,40 +79,44 @@ class FindAction:
 
 
 class FindForwardAction(FindAction):
-    def __init__(self, parent):
-        super().__init__(parent, Find(self, forward=True, offset=0))
+    def __init__(self, editor, parent):
+        super().__init__(editor, parent, Find(editor, self, forward=True, offset=0))
 
 
 class FindBackwardAction(FindAction):
-    def __init__(self, parent):
-        super().__init__(parent, Find(self, forward=False, offset=0))
+    def __init__(self, editor, parent):
+        super().__init__(editor, parent, Find(editor, self, forward=False, offset=0))
 
 
 class FindForwardToAction(FindAction):
-    def __init__(self, parent):
-        super().__init__(parent, Find(self, forward=True, offset=1))
+    def __init__(self, editor, parent):
+        super().__init__(editor, parent, Find(editor, self, forward=True, offset=1))
 
 
 class FindBackwardToAction(FindAction):
-    def __init__(self, parent):
-        super().__init__(parent, Find(self, forward=False, offset=1))
+    def __init__(self, editor, parent):
+        super().__init__(editor, parent, Find(editor, self, forward=False, offset=1))
 
 
 class StartWordAction:
-    def __init__(self, parent):
+    def __init__(self, editor, parent):
+        self.editor = editor
         self.parent = parent
-        self.motion = StartWord()
+        self.motion = StartWord(editor)
         self.parent.finish(self)
 
     def evaluate(self, buffer):
-        col = self.motion.evaluate(buffer) - 1
+        col = self.motion.evaluate(buffer)
+        if col is not None:
+            col -= 1
         return buffer.row, col
 
 
 class EndWordAction:
-    def __init__(self, parent):
+    def __init__(self, editor, parent):
+        self.editor = editor
         self.parent = parent
-        self.motion = EndWord()
+        self.motion = EndWord(self.editor)
         self.parent.finish(self)
 
     def evaluate(self, buffer):
@@ -120,24 +125,12 @@ class EndWordAction:
 
 
 class PrevWordAction:
-    def __init__(self, parent):
+    def __init__(self, editor, parent):
+        self.editor = editor
         self.parent = parent
-        self.motion = PrevWord()
+        self.motion = PrevWord(editor)
         self.parent.finish(self)
 
     def evaluate(self, buffer):
         col = self.motion.evaluate(buffer)
         return buffer.row, col
-
-
-NormalMode.KEYMAP["d"] = DeleteOperator
-NormalMode.KEYMAP["c"] = ChangeOperator
-
-OperatorMode.KEYMAP["f"] = FindForwardAction
-OperatorMode.KEYMAP["F"] = FindBackwardAction
-OperatorMode.KEYMAP["t"] = FindForwardToAction
-OperatorMode.KEYMAP["T"] = FindBackwardToAction
-
-OperatorMode.KEYMAP["w"] = StartWordAction
-OperatorMode.KEYMAP["e"] = EndWordAction
-OperatorMode.KEYMAP["b"] = PrevWordAction

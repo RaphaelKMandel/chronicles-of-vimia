@@ -2,7 +2,7 @@ import sys
 import inspect
 
 from random import choice
-from buffers import Buffer, Line
+from src.core.buffers import Buffer, Line
 
 
 def get_spawners():
@@ -22,7 +22,7 @@ class RandomSpawner:
         return cls(self.editor)
 
 
-def letter():
+def get_random_letter():
     return choice("abcdefghijklmnopqrstuvwxyz")
 
 
@@ -31,6 +31,14 @@ class Spawner:
         lines = [Line(text, target) for text, target in zip(texts, targets)]
         buffer = Buffer(editor, lines, name=name, score=score)
         editor.buffers[buffer.name] = buffer
+
+
+class ReplaceSpawner(Spawner):
+    def __init__(self, editor):
+        name = None
+        texts = ["The beer wanted to drink bear."]
+        targets = ["The bear wanted to drink beer."]
+        super().__init__(editor, name=name, texts=texts, targets=targets, score=10)
 
 
 class StartSpawner(Spawner):
@@ -75,7 +83,7 @@ class FindDeleteCharSpawner(Spawner):
         target = choice(self.TEXTS)
         inds = list(range(len(target)))
         text = target
-        l = letter()
+        l = get_random_letter()
         max_count = max(3, 2 + int(editor.credit // 30))
         for count in range(1, max_count):
             ind = choice(inds)
@@ -85,7 +93,7 @@ class FindDeleteCharSpawner(Spawner):
         super().__init__(editor, name, [text], [target], count * 4)
 
     def get_name(self):
-        return letter() + ".txt"
+        return get_random_letter() + ".txt"
 
 
 class FindDeleteToSpawner(Spawner):
@@ -99,16 +107,16 @@ class FindDeleteToSpawner(Spawner):
 class StartWordInsertSpawner(Spawner):
     def __init__(self, editor):
         name = None
-        text = "The test sults still needed finishing to avoid percussions before submission."
-        target = "The test results still needed refinishing to avoid repercussions before resubmission."
+        text = "The test sults still needed finishing."
+        target = "The test results still needed refinishing."
         super().__init__(editor, name, [text], [target], 16)
 
 
 class EndWordInsertSpawner(Spawner):
     def __init__(self, editor):
         name = None
-        text = "The results of the test are indicat that the test approach was valid."
-        target = "The results of the testing are indicating that the testing approach was valid."
+        text = "The results of the test are indicat."
+        target = "The results of the testing are indicating."
         super().__init__(editor, name, [text], [target], 16)
 
 
@@ -132,7 +140,7 @@ class DeleteWordSpawner(Spawner):
     def __init__(self, editor):
         name = None
         target = "Feel free to delete all the repeated words in this sentence."
-        text = "Feel free free to delete all all the repeated words words in this words sentence."
+        text = "Feel free free to delete all all the repeated words words in this sentence."
         super().__init__(editor, name, [text], [target], 16)
 
 

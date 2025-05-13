@@ -1,5 +1,5 @@
-from constants import *
-from diffs import get_diff
+from src.core.constants import *
+from src.core.util.diffs import get_diff
 
 
 class Line:
@@ -60,7 +60,7 @@ class Buffer:
         self.x, self.y = x, y
         self.undo_list = []
         self.redo_list = []
-        self.score = score
+        self.credit = score
         self.register()
 
     def register(self):
@@ -70,8 +70,11 @@ class Buffer:
     def max_width(self):
         return max([max(len(line.target), len(line.text)) for line in self.lines])
 
+    def height(self):
+        return 2 * CHAR_HEIGHT * len(self.lines)
+
     def get_rect(self):
-        return self.x, self.y, self.max_width() * CHAR_WIDTH, 2 * CHAR_HEIGHT * len(self.lines)
+        return self.x, self.y, self.max_width() * CHAR_WIDTH, self.height()
 
     def get_coord(self, row, col):
         return (
@@ -121,7 +124,8 @@ class Buffer:
         for n, line in enumerate(self.lines):
             line.draw(self.x, self.y + (2 * n + 1) * CHAR_HEIGHT)
 
-        self.y += 0.01 * self.editor.credit
+        dy = -45 + 0.5 * (self.editor.credit + self.editor.debit)
+        self.y += min(200, dy) / 60
 
     def draw_buffer_name(self):
         footer = FONT.render(self.name, True, WHITE)
@@ -130,7 +134,7 @@ class Buffer:
         self.editor.screen.blit(footer, footer_rect)
 
     def draw_buffer_score(self):
-        footer = FONT.render(f"Points: {self.score}", True, WHITE)
+        footer = FONT.render(f"Points: {self.credit}", True, WHITE)
         x, y, l, h = self.get_rect()
         footer_rect = footer.get_rect(topleft=(x + l - CHAR_WIDTH * 10, y + h))
         self.editor.screen.blit(footer, footer_rect)
@@ -139,15 +143,14 @@ class Buffer:
         return all([line.is_solved() for line in self.lines])
 
     def hit_bottom(self):
-        height = len(self.lines) * CHAR_HEIGHT + self.editor.BOTTOM
-        return self.y + height > HEIGHT - CHAR_HEIGHT
+        return self.y + self.height() + self.editor.BOTTOM > HEIGHT - CHAR_HEIGHT
 
     def test(self):
-        if self.is_solved() and self.editor.state is self.editor.normal:
-            self.editor.credit += self.score
+        if self.is_solved() and len(self.editor.states) == 1:
+            self.editor.credit += self.credit
             self.delete()
         elif self.hit_bottom():
-            self.editor.count += self.score * 2
+            self.editor.debit += self.credit * 2
             self.delete()
 
     def delete(self):

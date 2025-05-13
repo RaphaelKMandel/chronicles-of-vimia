@@ -8,19 +8,18 @@
 - [x] Undo/Redo?
 - Buffer class:
   - [x] method to determine x,y location given row,col
-  - [ ] method to determine text inside/outside start finish
   - [x] give it a name, and allow navigation with :e <file> with tabs
 - [ ] Arcade vs Campaign mode
 - [x] Buffer spawner class
 - [ ] Change Action class to Change class?
 - [x] Make demo file to demonstrate concept
-- [ ] Add counts to things
+- [ ] Add counts to actions/motions
 - [x] Insert mode creates list of actions (like a macro)?
   - [x] Insert Action to insert a char?
 - [x] Classes for move actions, like delete, change, etc..
 - [x] show keys at bottom
-- [ ] f,dt.
-- [ ] split buffer into odd lines and put inserted text on new line
+- [x] f,dt.
+- [x] split buffer into odd lines and put inserted text on new line
 - [x] Make Editor.state a stack, with properties to get and set the state stack
 
 # Approach
