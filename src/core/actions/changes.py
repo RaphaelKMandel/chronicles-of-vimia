@@ -37,6 +37,7 @@ class ReplaceChar(Action):
     def __init__(self, editor, parent):
         super().__init__(editor)
         self.parent = parent
+        self.char = None
         self.motion = Char(editor, self)
 
     def finish(self):
