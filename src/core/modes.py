@@ -1,41 +1,58 @@
 from re import match
 
+from src.core.constants import *
+
 
 class VimMode:
-    def __init__(self, game, command):
+    def __init__(self, game):
         self.game = game
-        self.command = command
 
-    def eval(self):
+    def is_pending(self, command):
         return False
 
 
 class NormalMode(VimMode):
-    def is_find(self):
+    NAME = "NORMAL"
+
+    def draw(self, items):
+        for char, x, y in items:
+            pygame.draw.rect(SCREEN, CURSOR_COLOR, (x, y, CHAR_WIDTH, CHAR_HEIGHT))
+            draw_text(char, x, y + CHAR_HEIGHT, CURSOR_TEXT_COLOR)
+
+    def is_find(self, command):
         """
         Equals f, F, t, T, q, ', or "
         """
-        return match("^[rfFtTq'\"]$", self.command)
+        return match("^[rfFtTq'\"]$", command)
 
-    def is_operator(self):
+    def is_operator(self, command):
         """
         Startswith d, c, y, <, >, =, and is optionally followed by i or a
         """
-        return match("^[dcy<>=]([ia])?$", self.command)
+        return match("^[dcy<>=]([iafFtT])?$", command)
 
-    def eval(self):
-        if self.is_find() or self.is_operator():
+    def is_command(self, command):
+        return match("^:.*[^\u000D]$|^:$", command)
+
+    def is_pending(self, command):
+        if self.is_find(command) or self.is_operator(command) or self.is_command(command):
             return True
 
 
 class InsertMode(VimMode):
-    pass
+    NAME = "-- INSERT --"
+
+    def draw(self, items):
+        for text, x, y in items:
+            pygame.draw.rect(SCREEN, CURSOR_COLOR, (x, y, CHAR_WIDTH // 4, CHAR_HEIGHT))
 
 
 class VisualMode(VimMode):
-    def is_operator(self):
-        return match("^[ia]$", self.command)
+    NAME = "VISUAL"
 
-    def eval(self):
-        if self.is_operator():
+    def is_operator(self, command):
+        return match("^[ia]$", command)
+
+    def is_pending(self, command):
+        if self.is_operator(command):
             return True
