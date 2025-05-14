@@ -1,89 +1,58 @@
 import sys
+import pygame
+import threading
+from queue import Queue
+import pynvim
 
 from src.core.constants import *
 
+# Initialize NVIM
+NVIM = pynvim.attach('child', argv=["nvim", "--embed", "--headless"])
 
-def send(command):
-    NVIM.input(command)
+# Input queue for feeding keys into Neovim
+key_queue = Queue()
+
+def nvim_input_loop():
+    while True:
+        key = key_queue.get()
+        try:
+            NVIM.input(key)
+        except Exception as e:
+            print("NVIM input error:", e)
+
+# Start the input thread
+threading.Thread(target=nvim_input_loop, daemon=True).start()
+
+
+def send(event):
+    special_keys = {
+        pygame.K_RETURN: "\r",
+        pygame.K_BACKSPACE: "\b",
+        pygame.K_ESCAPE: "\x1b",
+        pygame.K_TAB: "\t",
+        pygame.K_LEFT: "\x1bOD",
+        pygame.K_RIGHT: "\x1bOC",
+        pygame.K_UP: "\x1bOA",
+        pygame.K_DOWN: "\x1bOB",
+    }
+
+    key = special_keys.get(event.key, event.unicode)
+    if key:
+        key_queue.put(key)
 
 
 class State:
-    ENABLED = {}
-    DISABLED = {}
-
     def __init__(self, game):
         self.game = game
         self.game.state = self
 
     def handle_events(self, event):
-        if event.unicode in self.DISABLED:
-            return
-
-        if event.unicode in self.ENABLED:
-            command = self.ENABLED[event.unicode]
-            command(self.game)
-            return
-
-        send(event.unicode)
-
-
-class CharMode(State):
-    def __init__(self, game, parent):
-        super().__init__(game)
-        self.parent = parent
-        self.char = None
-
-    def handle_events(self, event):
-        self.exit(event.unicode)
-
-    def exit(self, char):
-        self.parent.exit(char)
-        self.game.pop()
-
-class Find:
-    def __init__(self, game):
-        self.game = game
-        self.command = "f"
-        CharMode(game, self)
-
-    def exit(self, char):
-        send(self.command + char)
-
-
-
-class CommandMode(State):
-    def __init__(self, game):
-        super().__init__(game)
-        self.command = ":"
-
-    def handle_command(self):
-        if self.command == ":q\r":
-            self.game.quit()
-            return
-
-        send(self.command)
-        self.exit()
-
-    def handle_events(self, event):
-        self.command += event.unicode
-
-        if event.unicode == "\r":
-            self.handle_command()
-            return
-
-    def exit(self):
-        self.game.pop()
-
-
-
+        if event.type == pygame.KEYDOWN:
+            send(event)
 
 
 class NormalMode(State):
-    DISABLED = {} #{"q", "F", "t", "T", "'", '"'}
-    ENABLED = {
-        ":": CommandMode,
-        # "f": Find
-    }
+    pass
 
 
 class Line:
@@ -109,7 +78,7 @@ class Buffer:
 
     @property
     def lines(self):
-        return NVIM.current.buffer[:]
+        return self.buffer[:]
 
     def get_pos(self):
         return NVIM.funcs.getpos('.')
@@ -140,8 +109,7 @@ class Buffer:
             line = Line(line)
             line.draw(self.x, self.y + (2 * n + 1) * CHAR_HEIGHT)
 
-        # Draw cursor
-
+        # Animate falling
         dy = 10
         self.y += min(200, dy) / 60
 
@@ -178,8 +146,7 @@ class Game:
                 self.running = False
                 return
 
-            if event.type == pygame.KEYDOWN:
-                self.state.handle_events(event)
+            self.state.handle_events(event)
 
     def run(self):
         while self.running:
@@ -195,6 +162,7 @@ class Game:
         sys.exit()
 
 
+# Main entry point
 game = Game()
 game.buffers["a"] = Buffer(["this is some text"])
 game.run()
