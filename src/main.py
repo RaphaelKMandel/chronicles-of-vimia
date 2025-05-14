@@ -1,169 +1,17 @@
 import sys
 
 from src.core.constants import *
-
-
-def send(command):
-    NVIM.input(command)
-
-
-class State:
-    ENABLED = {}
-    DISABLED = {}
-
-    def __init__(self, game):
-        self.game = game
-        self.game.state = self
-
-    def handle_events(self, event):
-        if event.unicode in self.DISABLED:
-            return
-
-        if event.unicode in self.ENABLED:
-            command = self.ENABLED[event.unicode]
-            command(self.game)
-            return
-
-        send(event.unicode)
-
-
-class CharMode(State):
-    def __init__(self, game, parent):
-        super().__init__(game)
-        self.parent = parent
-        self.char = None
-
-    def handle_events(self, event):
-        self.exit(event.unicode)
-
-    def exit(self, char):
-        self.parent.exit(char)
-        self.game.pop()
-
-class Find:
-    def __init__(self, game):
-        self.game = game
-        self.command = "f"
-        CharMode(game, self)
-
-    def exit(self, char):
-        send(self.command + char)
-
-
-
-class CommandMode(State):
-    def __init__(self, game):
-        super().__init__(game)
-        self.command = ":"
-
-    def handle_command(self):
-        if self.command == ":q\r":
-            self.game.quit()
-            return
-
-        send(self.command)
-        self.exit()
-
-    def handle_events(self, event):
-        self.command += event.unicode
-
-        if event.unicode == "\r":
-            self.handle_command()
-            return
-
-    def exit(self):
-        self.game.pop()
-
-
-
-
-
-class NormalMode(State):
-    DISABLED = {} #{"q", "F", "t", "T", "'", '"'}
-    ENABLED = {
-        ":": CommandMode,
-        # "f": Find
-    }
-
-
-class Line:
-    def __init__(self, text):
-        self.text = text
-
-    def draw(self, x, y):
-        text_surface = FONT.render(self.text, True, WHITE)
-        text_rect = text_surface.get_rect(topleft=(x, y))
-        SCREEN.blit(text_surface, text_rect)
-
-
-class Buffer:
-    def __init__(self, lines, x=20, y=20):
-        self.x, self.y = x, y
-        NVIM.command("enew")
-        self.buffer = NVIM.current.buffer
-        self.no = self.buffer.number
-        NVIM.command("setlocal undolevels=-1")
-        self.buffer[:] = lines
-        NVIM.command("setlocal nomodified")
-        NVIM.command("setlocal undolevels=100")
-
-    @property
-    def lines(self):
-        return NVIM.current.buffer[:]
-
-    def get_pos(self):
-        return NVIM.funcs.getpos('.')
-
-    @property
-    def row(self):
-        return self.get_pos()[1]
-
-    @property
-    def col(self):
-        return self.get_pos()[2]
-
-    def width(self):
-        return max([len(line) for line in self.lines])
-
-    def height(self):
-        return 2 * CHAR_HEIGHT * len(self.lines)
-
-    def get_rect(self):
-        return self.x, self.y, self.width() * CHAR_WIDTH, self.height()
-
-    def draw(self):
-        # Draw background
-        pygame.draw.rect(SCREEN, WORD_BACKGROUND_COLOR, self.get_rect())
-
-        # Draw text
-        for n, line in enumerate(self.lines):
-            line = Line(line)
-            line.draw(self.x, self.y + (2 * n + 1) * CHAR_HEIGHT)
-
-        # Draw cursor
-
-        dy = 10
-        self.y += min(200, dy) / 60
+from src.core.buffers import Buffer
+from src.core.modes import *
 
 
 class Game:
     def __init__(self):
         self.running = True
         self.buffers = {}
-        self.states = []
-        self.state = NormalMode(self)
-
-    @property
-    def state(self):
-        return self.states[-1]
-
-    @state.setter
-    def state(self, state):
-        self.states.append(state)
-
-    def pop(self):
-        if len(self.states) > 1:
-            self.states.pop()
+        self.command = ""
+        self.credit = 100
+        self.debit = 0
 
     def draw(self):
         SCREEN.fill(BACKGROUND_COLOR)
@@ -179,15 +27,36 @@ class Game:
                 return
 
             if event.type == pygame.KEYDOWN:
-                self.state.handle_events(event)
+                self.command += event.unicode
+                self.mode = self.get_mode()
+                print(self.mode, event.unicode)
+                if self.mode.eval():
+                    print("defering", self.command)
+                    continue
+
+                self.flush()
+
+    def get_mode(self):
+        mode = NVIM.eval("mode()")
+        return {
+            "n": NormalMode,
+            "i": InsertMode,
+            "v": VisualMode,
+        }.get(mode, NormalMode)(self, self.command)
 
     def run(self):
         while self.running:
             self.handle_events()
+            for buffer in self.buffers.values():
+                buffer.test()
             self.draw()
             CLOCK.tick(FPS)
 
         self.quit()
+
+    def flush(self):
+        NVIM.input(self.command)
+        self.command = ""
 
     def quit(self):
         self.running = False
@@ -196,5 +65,5 @@ class Game:
 
 
 game = Game()
-game.buffers["a"] = Buffer(["this is some text"])
+game.buffers["a"] = Buffer(game, ["this is some text"], ["This isnt some text"])
 game.run()

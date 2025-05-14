@@ -17,6 +17,7 @@ WIDTH, HEIGHT = 1600, 900
 FPS = 60
 FONT_SIZE = 32
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+BOTTOM = 5
 
 # Game Objects
 CLOCK = pygame.time.Clock()

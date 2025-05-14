@@ -1,4 +1,5 @@
 from src.core.constants import *
+from src.core.modes import NormalMode
 from src.core.util.diffs import get_diff
 
 
@@ -9,32 +10,13 @@ class Line:
         "delete": RED
     }
 
-    def __len__(self):
-        return len(self.text)
-
-    def __getitem__(self, item):
-        return self.text[item]
-
     def __init__(self, text, target):
-        self.words = []
         self.target = target
         self.text = text
-        self.parent = None
+        self.words = get_diff(self.text, self.target)
 
     def is_solved(self):
         return self.text == self.target
-
-    @property
-    def text(self):
-        return self._text
-
-    @text.setter
-    def text(self, value):
-        self._text = value
-        self.update()
-
-    def update(self):
-        self.words = get_diff(self.text, self.target)
 
     def draw(self, x, y):
         col = 0
@@ -52,29 +34,43 @@ class Line:
 
 
 class Buffer:
-    def __init__(self, editor, lines: list[Line], x=20, y=20, name=None, score=5):
-        self.editor = editor
+    def __init__(self, game, lines, targets, name=None, x=20, y=20, credit=5):
+        self.game = game
         self.name = name
-        self.lines = lines
-        self.row, self.col = 0, 0
         self.x, self.y = x, y
-        self.undo_list = []
-        self.redo_list = []
-        self.credit = score
-        self.register()
+        NVIM.command("enew")
+        self.buffer = NVIM.current.buffer
+        self.no = self.buffer.number
+        NVIM.command("setlocal undolevels=-1")
+        self.buffer[:] = lines
+        self.targets = targets
+        NVIM.command("setlocal nomodified")
+        NVIM.command("setlocal undolevels=100")
+        self.credit = credit
 
-    def register(self):
-        for line in self.lines:
-            line.parent = self
+    @property
+    def lines(self):
+        return NVIM.current.buffer[:]
 
-    def max_width(self):
-        return max([max(len(line.target), len(line.text)) for line in self.lines])
+    def get_pos(self):
+        return NVIM.funcs.getpos('.')
+
+    @property
+    def row(self):
+        return self.get_pos()[1]
+
+    @property
+    def col(self):
+        return self.get_pos()[2]
+
+    def width(self):
+        return max([max([len(line), len(target)]) for line, target in zip(self.lines, self.targets)])
 
     def height(self):
         return 2 * CHAR_HEIGHT * len(self.lines)
 
     def get_rect(self):
-        return self.x, self.y, self.max_width() * CHAR_WIDTH, self.height()
+        return self.x, self.y, self.width() * CHAR_WIDTH, self.height()
 
     def get_coord(self, row, col):
         return (
@@ -82,77 +78,33 @@ class Buffer:
             self.x + col * CHAR_WIDTH
         )
 
-    @property
-    def col(self):
-        max_col = self.editor.state.max_col()
-        return min(self._col, max_col)
-
-    @col.setter
-    def col(self, value):
-        self._col = value
-
-    @property
-    def line(self):
-        return self.lines[self.row].text
-
-    @line.setter
-    def line(self, value):
-        self.lines[self.row].text = value
-
-    def get_topleft(self, row):
-        return self.x, self.y + row * CHAR_HEIGHT
-
-    def next_row(self):
-        if self.row == len(self.lines) - 1:
-            return False
-
-        self.row += 1
-        return True
-
-    def previous_row(self):
-        if self.row == 0:
-            return False
-
-        self.row -= 1
-        return True
-
     def draw(self):
         # Draw background
         pygame.draw.rect(SCREEN, WORD_BACKGROUND_COLOR, self.get_rect())
 
         # Draw text
-        for n, line in enumerate(self.lines):
+        for n, (line, target) in enumerate(zip(self.lines, self.targets)):
+            line = Line(line, target)
             line.draw(self.x, self.y + (2 * n + 1) * CHAR_HEIGHT)
 
-        dy = -45 + 0.5 * (self.editor.credit + self.editor.debit)
+        # Draw cursor
+
+        dy = 10
         self.y += min(200, dy) / 60
 
-    def draw_buffer_name(self):
-        footer = FONT.render(self.name, True, WHITE)
-        x, y, l, h = self.get_rect()
-        footer_rect = footer.get_rect(topleft=(x, y + h))
-        self.editor.screen.blit(footer, footer_rect)
-
-    def draw_buffer_score(self):
-        footer = FONT.render(f"Points: {self.credit}", True, WHITE)
-        x, y, l, h = self.get_rect()
-        footer_rect = footer.get_rect(topleft=(x + l - CHAR_WIDTH * 10, y + h))
-        self.editor.screen.blit(footer, footer_rect)
-
     def is_solved(self):
-        return all([line.is_solved() for line in self.lines])
+        return all([line == target for line, target in zip(self.lines, self.targets)])
 
     def hit_bottom(self):
-        return self.y + self.height() + self.editor.BOTTOM > HEIGHT - CHAR_HEIGHT
+        return self.y + self.height() + BOTTOM > HEIGHT - CHAR_HEIGHT
 
     def test(self):
-        if self.is_solved() and len(self.editor.states) == 1:
-            self.editor.credit += self.credit
+        if self.is_solved() and isinstance(self.game.mode, NormalMode):
+            self.game.credit += self.credit
             self.delete()
         elif self.hit_bottom():
-            self.editor.debit += self.credit * 2
+            self.game.debit += self.credit * 2
             self.delete()
 
     def delete(self):
-        del self.editor.buffers[self.name]
-        self.editor.pop()
+        del self.game.buffers[self.name]
