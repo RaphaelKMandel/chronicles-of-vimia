@@ -2,7 +2,7 @@ import pygame
 import pynvim
 
 # Initialize pynvim
-NVIM = pynvim.attach('child', argv=["nvim", "--embed", "--headless"])
+NVIM = pynvim.attach('child', argv=["nvim", "--embed", "--headless", "--clean"])
 NVIM.command("set noswapfile")
 
 # Initialize pygame
