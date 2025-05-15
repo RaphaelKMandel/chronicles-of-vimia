@@ -40,6 +40,13 @@ class StartReplaceSpawner(Spawner):
         super().__init__(game, texts=texts, targets=targets, par=10)
 
 
+class EndReplaceSpawner(Spawner):
+    def __init__(self, game):
+        texts = ["The bean used tan to ban the can."]
+        targets = ["The bear used tar to bar the car."]
+        super().__init__(game, texts=texts, targets=targets, par=13)
+
+
 class FindReplaceSpawner(Spawner):
     def __init__(self, game):
         texts = ["The feir of mixing out."]
@@ -93,7 +100,7 @@ class FindDeleteCharSpawner(Spawner):
             inds.remove(ind)
             text = text[:ind] + letter + text[ind:]
 
-        super().__init__(game, [text], [target], par=3 + 2 * (count-1))
+        super().__init__(game, [text], [target], par=3 + 2 * (count - 1))
 
 
 class FindDeleteToSpawner(Spawner):
@@ -167,4 +174,14 @@ class DeleteAroundWordSpawner(Spawner):
         super().__init__(game, texts, targets, par=8)
 
 
+# class DeleteSearchSpawner(Spawner):
+#     def __init__(self, game):
+#         texts = ["You can yell you am awesome"]
+#         targets = ["I am awesome"]
+#         super().__init__(game, texts, targets, par=5)
 
+class DeleteToEnd(Spawner):
+    def __init__(self, game):
+        texts = ["You know I love you, but you always do that"]
+        targets = ["You know I love you."]
+        super().__init__(game, texts, targets, par=5)

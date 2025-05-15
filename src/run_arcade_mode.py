@@ -1,7 +1,7 @@
 from core.games import Game
-from core.spawners.spawners import RandomSpawner
+from core.spawners.spawners import *
 
 game = Game()
 game.spawner = RandomSpawner(game)
-# game.spawner.spawners = [SubsSpawner]
+game.spawner.spawners = [DeleteToEnd]
 game.run()
