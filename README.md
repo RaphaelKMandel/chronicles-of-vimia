@@ -41,7 +41,7 @@ python3 src/run_arcade_mode.py
 
 ## Planned Features
 
-1. A campaign mode, where users can level up by acquiring motions
+1. A campaign mode, where users can level up by acquiring motions; fight bosses (multiline puzzles?) at end
 2. A training mode, where puzzles are generated to get practice on a certain motion or command
 3. More than one falling buffer at a time
 4. Better graphics, effects, etc...

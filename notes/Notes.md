@@ -1,7 +1,8 @@
 # Tasks
 
-- [ ] Home screen
+- [ ] Home screen with commands
 - [ ] Arcade vs Campaign mode
+- [ ] Way to remove certain keybinds
 
 # Approach
 
