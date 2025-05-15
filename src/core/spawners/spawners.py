@@ -190,10 +190,10 @@ class DeleteToEndSpawner(EditSpawner):
 
 class MovementSpawner:
     def __init__(self, game):
+        N = 1
         n_rows = 5
         n_cols = 11
-        N = 1
-        rows = [choice(range(n_rows)) for _ in range(1)]
-        cols = [choice(range(n_cols)) for _ in range(1)]
+        rows = [choice(range(n_rows)) for _ in range(N)]
+        cols = [choice(range(n_cols)) for _ in range(N)]
         puzzle = MovementPuzzle(game, x=20, y=20, speed=50, n_rows=5, n_cols=11, rows=rows, cols=cols)
         game.puzzles.append(puzzle)
