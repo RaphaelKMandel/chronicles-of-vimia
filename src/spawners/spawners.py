@@ -150,3 +150,21 @@ class ChangeWordSpawner(Spawner):
         target = "The more wine you have, the better your wine tastes."
         text = "The more food you have, the better your food tastes."
         super().__init__(game, [text], [target], par=10)
+
+
+class DeleteAroundWordSpawner(Spawner):
+    def __init__(self, game):
+        targets = [
+            "The first sign of you",
+            "Is impeccable timing",
+            "A simple poem"
+        ]
+        texts = [
+            "The first sign sign of you",
+            "Is impeccable impeccable timing",
+            "A simple simple poem"
+        ]
+        super().__init__(game, texts, targets, par=8)
+
+
+
