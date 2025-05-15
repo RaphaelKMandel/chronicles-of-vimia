@@ -24,19 +24,19 @@ class Game:
         pygame.draw.rect(SCREEN, CURSOR_COLOR, (0, HEIGHT - CHAR_HEIGHT - BOTTOM, WIDTH, BOTTOM))
 
         # Status
-        draw_text(text, 0, HEIGHT, TEXT_COLOR)
+        draw_text(text, 0, HEIGHT-CHAR_HEIGHT, TEXT_COLOR)
 
         # Last Command
         last = self.command if self.command else self.last
-        draw_text(last, WIDTH // 2, HEIGHT, TEXT_COLOR)
+        draw_text(last, WIDTH // 2, HEIGHT - CHAR_HEIGHT, TEXT_COLOR)
 
         # Cursor Position Vector
         row, col = NVIM.funcs.getpos(".")[1:3]
-        draw_text(f"{row}:{col}", WIDTH - 100, HEIGHT, TEXT_COLOR)
+        draw_text(f"{row}:{col}", WIDTH - 100, HEIGHT-CHAR_HEIGHT, TEXT_COLOR)
 
     def draw_top(self):
-        draw_text(f"Score: {self.credit}", WIDTH - CHAR_WIDTH * 11, CHAR_HEIGHT, WHITE)
-        draw_text(f"Keys Remaining: {self.credit - self.debit}", WIDTH - CHAR_WIDTH * 20, 2 * CHAR_HEIGHT, WHITE)
+        draw_text(f"Score: {self.credit}", WIDTH - CHAR_WIDTH * 11, 0, WHITE)
+        draw_text(f"Keys Remaining: {self.credit - self.debit}", WIDTH - CHAR_WIDTH * 20, CHAR_HEIGHT, WHITE)
 
     def draw(self):
         SCREEN.fill(BACKGROUND_COLOR)

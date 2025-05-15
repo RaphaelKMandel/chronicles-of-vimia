@@ -2,13 +2,13 @@ import sys
 import inspect
 from random import choice
 
-from ..puzzles import Puzzle
+from ..puzzles import EditPuzzle, MovementPuzzle
 
 
 def get_spawners():
     self = sys.modules[__name__]
     return [obj for name, obj in inspect.getmembers(self, inspect.isclass) if
-            obj.__module__ == __name__ and name not in {"RandomSpawner", "Spawner"}]
+            obj.__module__ == __name__ and name not in {"RandomSpawner", "Spawner", "EditSpawner"}]
 
 
 class RandomSpawner:
@@ -27,34 +27,34 @@ def get_random_letter():
     return choice("abcdefghijklmnopqrstuvwxyz")
 
 
-class Spawner:
+class EditSpawner:
     def __init__(self, game, texts, targets, par, speed=50):
-        puzzle = Puzzle(game, texts, targets, par=par, speed=speed)
+        puzzle = EditPuzzle(game, texts, targets, par=par, speed=speed)
         game.puzzles.append(puzzle)
 
 
-class StartReplaceSpawner(Spawner):
+class StartReplaceSpawner(EditSpawner):
     def __init__(self, game):
         texts = ["The dear fegan to park feer."]
         targets = ["The bear began to bark beer."]
         super().__init__(game, texts=texts, targets=targets, par=10)
 
 
-class EndReplaceSpawner(Spawner):
+class EndReplaceSpawner(EditSpawner):
     def __init__(self, game):
         texts = ["The bean used tan to ban the can."]
         targets = ["The bear used tar to bar the car."]
         super().__init__(game, texts=texts, targets=targets, par=13)
 
 
-class FindReplaceSpawner(Spawner):
+class FindReplaceSpawner(EditSpawner):
     def __init__(self, game):
         texts = ["The feir of mixing out."]
         targets = ["The fear of maxing out."]
         super().__init__(game, texts=texts, targets=targets, par=6)
 
 
-class StartSpawner(Spawner):
+class StartSpawner(EditSpawner):
     def __init__(self, game):
         texts = [
             "This is the first item.",
@@ -66,7 +66,7 @@ class StartSpawner(Spawner):
         super().__init__(game, texts=texts, targets=targets, par=8)
 
 
-class EndSpawner(Spawner):
+class EndSpawner(EditSpawner):
     def __init__(self, game):
         targets = [
             "(1) Open the peanut butter.",
@@ -82,7 +82,7 @@ class EndSpawner(Spawner):
         super().__init__(game, texts=texts, targets=targets, par=7)
 
 
-class FindDeleteCharSpawner(Spawner):
+class FindDeleteCharSpawner(EditSpawner):
     TEXTS = [
         "The quick brown fox jumped.",
         "This is a (sample) word.",
@@ -103,63 +103,63 @@ class FindDeleteCharSpawner(Spawner):
         super().__init__(game, [text], [target], par=3 + 2 * (count - 1))
 
 
-class FindDeleteToSpawner(Spawner):
+class FindDeleteToSpawner(EditSpawner):
     def __init__(self, game):
         text = "This sentence is short, and this part is not needed."
         target = "This sentence is short."
         super().__init__(game, [text], [target], par=5)
 
 
-class StartWordInsertSpawner(Spawner):
+class StartWordInsertSpawner(EditSpawner):
     def __init__(self, game):
         text = "The sults verted to the original."
         target = "The results reverted to the original."
         super().__init__(game, [text], [target], par=7)
 
 
-class EndWordInsertSpawner(Spawner):
+class EndWordInsertSpawner(EditSpawner):
     def __init__(self, game):
         text = "The test are indicat."
         target = "The testing are indicating."
         super().__init__(game, [text], [target], par=10)
 
 
-class StartWordDeleteSpawner(Spawner):
+class StartWordDeleteSpawner(EditSpawner):
     def __init__(self, game):
         text = "I reinstated my everlong photosynthesis."
         target = "I instated my long synthesis."
         super().__init__(game, [text], [target], par=10)
 
 
-class EndWordDeleteSpawner(Spawner):
+class EndWordDeleteSpawner(EditSpawner):
     def __init__(self, game):
         text = "Starting going for the lasting time."
         target = "Start go for the last time."
         super().__init__(game, [text], [target], par=8)
 
 
-class DeleteWordSpawner(Spawner):
+class DeleteWordSpawner(EditSpawner):
     def __init__(self, game):
         target = "Please delete all the repeated words."
         text = "Please delete delete all the the repeated words words."
         super().__init__(game, [text], [target], par=9)
 
 
-class SubsSpawner(Spawner):
+class SubsSpawner(EditSpawner):
     def __init__(self, game):
         text = 'var foo = "method("+arg1+","+arg2+");'
         target = 'var foo = "method(" + arg1 + "," + arg2 + ");'
         super().__init__(game, [text], [target], par=13)
 
 
-class ChangeWordSpawner(Spawner):
+class ChangeWordSpawner(EditSpawner):
     def __init__(self, game):
         target = "The more wine you have, the better your wine tastes."
         text = "The more food you have, the better your food tastes."
         super().__init__(game, [text], [target], par=10)
 
 
-class DeleteAroundWordSpawner(Spawner):
+class DeleteAroundWordSpawner(EditSpawner):
     def __init__(self, game):
         targets = [
             "The first sign of you",
@@ -174,14 +174,26 @@ class DeleteAroundWordSpawner(Spawner):
         super().__init__(game, texts, targets, par=8)
 
 
-# class DeleteSearchSpawner(Spawner):
-#     def __init__(self, game):
-#         texts = ["You can yell you am awesome"]
-#         targets = ["I am awesome"]
-#         super().__init__(game, texts, targets, par=5)
-
-class DeleteToEnd(Spawner):
+class ChangeToEndSpawner(EditSpawner):
     def __init__(self, game):
         texts = ["You know I love you, but you always do that"]
         targets = ["You know I love you."]
         super().__init__(game, texts, targets, par=5)
+
+
+class DeleteToEndSpawner(EditSpawner):
+    def __init__(self, game):
+        texts = ["I cant believe you did that, you always do that!"]
+        targets = ["I cant believe you did that"]
+        super().__init__(game, texts, targets, par=3)
+
+
+class MovementSpawner:
+    def __init__(self, game):
+        n_rows = 5
+        n_cols = 11
+        N = 1
+        rows = [choice(range(n_rows)) for _ in range(1)]
+        cols = [choice(range(n_cols)) for _ in range(1)]
+        puzzle = MovementPuzzle(game, x=20, y=20, speed=50, n_rows=5, n_cols=11, rows=rows, cols=cols)
+        game.puzzles.append(puzzle)

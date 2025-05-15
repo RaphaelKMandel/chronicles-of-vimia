@@ -26,6 +26,7 @@ CLOCK = pygame.time.Clock()
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
+ORANGE = (200, 165, 0)
 TEXT_COLOR = (255, 255, 255)
 BACKGROUND_COLOR = (0, 0, 0)
 CURSOR_COLOR = (255, 255, 255)
@@ -34,8 +35,11 @@ WORD_BACKGROUND_COLOR = (32, 0, 106)
 
 # Font
 FONT = pygame.font.SysFont("monospace", FONT_SIZE)
-if "agave" in pygame.font.get_fonts():
-    FONT = pygame.font.SysFont("agave", FONT_SIZE)
+FONTS = pygame.font.get_fonts()
+for font in {"agave", "agaveregular"}:
+    if font in FONTS:
+        FONT = pygame.font.SysFont(font, FONT_SIZE)
+        break
 
 CHAR_WIDTH, CHAR_HEIGHT = FONT.size(" ")
 
@@ -46,5 +50,5 @@ def get_pos():
 def draw_text(text, x, y, color):
     text_surface = FONT.render(text, True, color)
     text_rect = text_surface.get_rect()
-    text_rect.bottomleft = (x, y)
+    text_rect.topleft = (x, y)
     SCREEN.blit(text_surface, text_rect)

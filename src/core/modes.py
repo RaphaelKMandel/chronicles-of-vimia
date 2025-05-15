@@ -17,7 +17,7 @@ class NormalMode(VimMode):
     def draw(self, items):
         for char, x, y in items:
             pygame.draw.rect(SCREEN, CURSOR_COLOR, (x, y, CHAR_WIDTH, CHAR_HEIGHT))
-            draw_text(char, x, y + CHAR_HEIGHT, CURSOR_TEXT_COLOR)
+            draw_text(char, x, y, CURSOR_TEXT_COLOR)
 
     def is_find(self, command):
         """
