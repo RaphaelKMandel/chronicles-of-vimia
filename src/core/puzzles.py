@@ -32,12 +32,12 @@ class LineDrawer:
 
 
 class Puzzle:
-    def __init__(self, game, lines, targets, x=20, y=20, credit=6, speed=10):
+    def __init__(self, game, lines, targets, x=20, y=20, par=6, speed=10):
         self.game = game
         self.buffer = Buffer(lines)
         self.targets = targets
         self.x, self.y = x, y
-        self.credit = credit
+        self.par = par
         self.speed = speed
 
     @property
@@ -95,10 +95,9 @@ class Puzzle:
 
     def test(self):
         if self.is_solved() and isinstance(self.game.mode, NormalMode):
-            self.game.credit += self.credit
+            self.game.credit += self.game.multiplier * self.par
             self.delete()
         elif self.hit_bottom():
-            self.game.debit += self.credit * 2
             self.delete()
 
     def delete(self):

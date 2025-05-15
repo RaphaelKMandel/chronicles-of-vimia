@@ -39,6 +39,10 @@ class NormalMode(VimMode):
             return True
 
 
+class LostMode(NormalMode):
+    NAME = "GAME OVER"
+
+
 class InsertMode(VimMode):
     NAME = "-- INSERT --"
 

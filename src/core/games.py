@@ -8,6 +8,7 @@ class Game:
     def __init__(self):
         self.running = True
         self.spawner = None
+        self.multiplier = 1
         self.restart()
 
     def restart(self):
@@ -69,6 +70,9 @@ class Game:
 
     @property
     def mode(self):
+        if self.lost:
+            return LostMode(self)
+
         mode = NVIM.eval("mode()")
         return {
             "n": NormalMode,

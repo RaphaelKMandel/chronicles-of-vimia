@@ -28,16 +28,23 @@ def get_random_letter():
 
 
 class Spawner:
-    def __init__(self, game, texts, targets, credit, speed=50):
-        puzzle = Puzzle(game, texts, targets, credit=credit, speed=speed)
+    def __init__(self, game, texts, targets, par, speed=50):
+        puzzle = Puzzle(game, texts, targets, par=par, speed=speed)
         game.puzzles.append(puzzle)
 
 
-class ReplaceSpawner(Spawner):
+class StartReplaceSpawner(Spawner):
     def __init__(self, game):
-        texts = ["The beer wanted to drink bear."]
-        targets = ["The bear wanted to drink beer."]
-        super().__init__(game, texts=texts, targets=targets, credit=10)
+        texts = ["The dear fegan to park feer."]
+        targets = ["The bear began to bark beer."]
+        super().__init__(game, texts=texts, targets=targets, par=8)
+
+
+class FindReplaceSpawner(Spawner):
+    def __init__(self, game):
+        texts = ["The feir of mixing out."]
+        targets = ["The fear of maxing out."]
+        super().__init__(game, texts=texts, targets=targets, par=6)
 
 
 class StartSpawner(Spawner):
@@ -49,7 +56,7 @@ class StartSpawner(Spawner):
         ]
         prefix = choice(["-", "+", "[ ]", "[x]"]) + " "
         targets = [prefix + text for text in texts]
-        super().__init__(game, texts=texts, targets=targets, credit=12)
+        super().__init__(game, texts=texts, targets=targets, par=8)
 
 
 class EndSpawner(Spawner):
@@ -65,13 +72,13 @@ class EndSpawner(Spawner):
             "(3) Spread the peanut butter on bread"
         ]
 
-        super().__init__(game, texts=texts, targets=targets, credit=12)
+        super().__init__(game, texts=texts, targets=targets, par=7)
 
 
 class FindDeleteCharSpawner(Spawner):
     TEXTS = [
         "The quick brown fox jumped.",
-        "This is a (sample) text.",
+        "This is a (sample) word.",
         "Delete all the random characters!"
     ]
 
@@ -79,67 +86,67 @@ class FindDeleteCharSpawner(Spawner):
         target = choice(self.TEXTS)
         inds = list(range(len(target)))
         text = target
-        l = get_random_letter()
-        max_count = max(3, 2 + int(game.credit // 30))
-        for count in range(1, max_count + 1):
+        letter = "x"
+        count = choice([1, 2, 3])
+        for _ in range(count):
             ind = choice(inds)
             inds.remove(ind)
-            text = text[:ind] + l + text[ind:]
+            text = text[:ind] + letter + text[ind:]
 
-        super().__init__(game, [text], [target], credit=max_count * 4)
+        super().__init__(game, [text], [target], par=3 + 2 * count)
 
 
 class FindDeleteToSpawner(Spawner):
     def __init__(self, game):
         text = "This sentence is short, and this part is not needed."
         target = "This sentence is short."
-        super().__init__(game, [text], [target], credit=10)
+        super().__init__(game, [text], [target], par=5)
 
 
 class StartWordInsertSpawner(Spawner):
     def __init__(self, game):
-        text = "The test sults still needed finishing."
-        target = "The test results still needed refinishing."
-        super().__init__(game, [text], [target], credit=16)
+        text = "The sults verted to the original."
+        target = "The results reverted to the original."
+        super().__init__(game, [text], [target], par=7)
 
 
 class EndWordInsertSpawner(Spawner):
     def __init__(self, game):
-        text = "The results of the test are indicat."
-        target = "The results of the testing are indicating."
-        super().__init__(game, [text], [target], credit=16)
+        text = "The test are indicat."
+        target = "The testing are indicating."
+        super().__init__(game, [text], [target], par=10)
 
 
 class StartWordDeleteSpawner(Spawner):
     def __init__(self, game):
-        text = "I reinstalled my everlasting photosynthesis."
-        target = "I installed my lasting synthesis."
-        super().__init__(game, [text], [target], credit=8)
+        text = "I reinstalled my everlong photosynthesis."
+        target = "I installed my long synthesis."
+        super().__init__(game, [text], [target], par=10)
 
 
 class EndWordDeleteSpawner(Spawner):
     def __init__(self, game):
-        text = "Starting going for lasting night."
-        target = "Start going for last night."
-        super().__init__(game, [text], [target], credit=8)
+        text = "Starting going for the lasting time."
+        target = "Start go for the last time."
+        super().__init__(game, [text], [target], par=8)
 
 
 class DeleteWordSpawner(Spawner):
     def __init__(self, game):
-        target = "Feel free to delete all the repeated words in this sentence."
-        text = "Feel free free to delete all all the repeated words words in this sentence."
-        super().__init__(game, [text], [target], credit=16)
+        target = "Delete all the repeated words in this sentence."
+        text = "Delete delete all the the repeated words words in this this sentence."
+        super().__init__(game, [text], [target], par=12)
 
 
 class SubsSpawner(Spawner):
     def __init__(self, game):
         text = 'var foo = "method("+arg1+","+arg2+");'
         target = 'var foo = "method(" + arg1 + "," + arg2 + ");'
-        super().__init__(game, [text], [target], credit=12)
+        super().__init__(game, [text], [target], par=8)
 
 
 class ChangeWordSpawner(Spawner):
     def __init__(self, game):
         target = "The more wine you have, the better your wine tastes."
         text = "The more food you have, the better your food tastes."
-        super().__init__(game, [text], [target], credit=8)
+        super().__init__(game, [text], [target], par=10)
