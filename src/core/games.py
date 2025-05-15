@@ -1,7 +1,7 @@
 import sys
 
-from src.core.constants import *
-from src.core.modes import *
+from .constants import *
+from .modes import *
 
 
 class Game:

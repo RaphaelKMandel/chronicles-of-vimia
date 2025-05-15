@@ -1,7 +1,7 @@
-from src.core.constants import *
-from src.core.modes import NormalMode
-from src.core.buffers import Buffer
-from src.core.diffs import get_diff
+from .constants import *
+from .modes import NormalMode
+from .buffers import Buffer
+from .diffs import get_diff
 
 
 class LineDrawer:

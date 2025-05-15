@@ -1,6 +1,6 @@
 from re import match
 
-from src.core.constants import *
+from .constants import *
 
 
 class VimMode:

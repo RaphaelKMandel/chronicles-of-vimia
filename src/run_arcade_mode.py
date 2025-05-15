@@ -1,5 +1,5 @@
-from src.core.games import Game
-from src.spawners.spawners import RandomSpawner, SubsSpawner
+from core.games import Game
+from core.spawners.spawners import RandomSpawner
 
 game = Game()
 game.spawner = RandomSpawner(game)

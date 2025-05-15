@@ -7,18 +7,6 @@ As you progress and get better, using fewer keystrokes should happen naturally, 
 
 Example Video(https://www.youtube.com/watch?v=hNyf9kntsf4)
 
-## Why Python???
-
-Before you ask, the game is implemented in python for a few reasons:
-
-1. Because I wanted to
-2. I am a hobbyist/aspiring software developer who is learning, and I wanted a medium sized (?) project where I could
-   practice
-   using Design Patterns, such as State, Command, Memento, Strategy, Template Methods, etc...
-3. I wanted more game-style effects, such as falling buffers, explody effects, etc... which I dont think is possible in
-   Vim
-4. I thought it would be useful to have this library for other future vim-related games
-
 This is a work in progress, so please forgive any bugs or missing features.
 
 ## Setup
@@ -34,7 +22,7 @@ pip install -r requirements.txt
 3. Run the game:
 
 ```bash
-python main.py
+python3 src/run_arcade_mode.py
 ```
 
 ## How to Play
@@ -43,21 +31,19 @@ python main.py
 - Use Vim commands to delete text in red and insert mode to add text in green
 - Score points by correctly typing and editing the falling text before it hits the ground
 - Your keystrokes are counted so use as few keystrokes as possible to get the highest score
-- Dont let the buffers hit the ground, or your keystrokes will be penalized!
+- Don't let the buffers hit the ground, or they will disappear!
 - Quit the game using :q
 - Start a new game using :n
 
 ## Current Features
 
-1. Motions (h, j, k, l, f, t, w, e, b, 0, ^, _, and $) and Commands (d, c, and .)
-2. An Arcade mode, where users shoot for the highest score 
+1. An Arcade mode, where users shoot for the highest score
 
 ## Planned Features
 
 1. A campaign mode, where users can level up by acquiring motions
 2. A training mode, where puzzles are generated to get practice on a certain motion or command
-3. Text objects (iw, aw, ap) and associated spawners
-4. More than one falling buffer at a time
-5. Better graphics, effects, etc...
-6. A larger library of buffer spawners to teach certain chords/patterns
-7. Adding new spawners as score increases
+3. More than one falling buffer at a time
+4. Better graphics, effects, etc...
+5. A larger library of buffer spawners to teach certain chords/patterns
+6. Adding new spawners as score increases

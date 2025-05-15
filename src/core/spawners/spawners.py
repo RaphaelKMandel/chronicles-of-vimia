@@ -1,8 +1,8 @@
 import sys
 import inspect
-
 from random import choice
-from src.core.puzzles import Puzzle
+
+from ..puzzles import Puzzle
 
 
 def get_spawners():
