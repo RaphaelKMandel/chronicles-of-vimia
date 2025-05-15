@@ -16,7 +16,7 @@ class Game:
         self.puzzles = []
         self.command = ""
         self.last = ""
-        self.credit = 100
+        self.credit = 25
         self.debit = 0
 
     def draw_command_line(self, text):
@@ -35,10 +35,8 @@ class Game:
         draw_text(f"{row}:{col}", WIDTH - 100, HEIGHT, TEXT_COLOR)
 
     def draw_top(self):
-        draw_text(f"Score: {self.credit}/{self.debit}", WIDTH - CHAR_WIDTH * 16, CHAR_HEIGHT, WHITE)
-        # header = FONT.render(f, True, WHITE)
-        # header_rect = header.get_rect(topleft=(WIDTH - CHAR_WIDTH * 16, 0))
-        # SCREEN.blit(header, header_rect)
+        draw_text(f"Score: {self.credit}", WIDTH - CHAR_WIDTH * 11, CHAR_HEIGHT, WHITE)
+        draw_text(f"Keys Remaining: {self.credit - self.debit}", WIDTH - CHAR_WIDTH * 20, 2 * CHAR_HEIGHT, WHITE)
 
     def draw(self):
         SCREEN.fill(BACKGROUND_COLOR)
@@ -80,6 +78,10 @@ class Game:
             "v": VisualMode,
         }.get(mode, NormalMode)(self)
 
+    @property
+    def puzzle(self):
+        return self.puzzles[0]
+
     def run(self):
         while self.running:
             self.handle_events()
@@ -109,13 +111,11 @@ class Game:
             self.restart()
             return
 
-        command = self.command
+        NVIM.input(self.command)
+        self.last = self.command
+        if not self.lost:
+            self.debit += len(self.command)
         self.command = ""
-        print("sending command", command)
-        NVIM.input(command)
-        print("finished sending command", command)
-        self.last = command
-        self.debit += len(command)
 
     def quit(self):
         self.running = False

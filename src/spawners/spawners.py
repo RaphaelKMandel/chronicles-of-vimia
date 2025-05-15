@@ -37,7 +37,7 @@ class StartReplaceSpawner(Spawner):
     def __init__(self, game):
         texts = ["The dear fegan to park feer."]
         targets = ["The bear began to bark beer."]
-        super().__init__(game, texts=texts, targets=targets, par=8)
+        super().__init__(game, texts=texts, targets=targets, par=10)
 
 
 class FindReplaceSpawner(Spawner):
@@ -93,7 +93,7 @@ class FindDeleteCharSpawner(Spawner):
             inds.remove(ind)
             text = text[:ind] + letter + text[ind:]
 
-        super().__init__(game, [text], [target], par=3 + 2 * count)
+        super().__init__(game, [text], [target], par=3 + 2 * (count-1))
 
 
 class FindDeleteToSpawner(Spawner):
@@ -119,8 +119,8 @@ class EndWordInsertSpawner(Spawner):
 
 class StartWordDeleteSpawner(Spawner):
     def __init__(self, game):
-        text = "I reinstalled my everlong photosynthesis."
-        target = "I installed my long synthesis."
+        text = "I reinstated my everlong photosynthesis."
+        target = "I instated my long synthesis."
         super().__init__(game, [text], [target], par=10)
 
 
@@ -133,16 +133,16 @@ class EndWordDeleteSpawner(Spawner):
 
 class DeleteWordSpawner(Spawner):
     def __init__(self, game):
-        target = "Delete all the repeated words in this sentence."
-        text = "Delete delete all the the repeated words words in this this sentence."
-        super().__init__(game, [text], [target], par=12)
+        target = "Please delete all the repeated words."
+        text = "Please delete delete all the the repeated words words."
+        super().__init__(game, [text], [target], par=9)
 
 
 class SubsSpawner(Spawner):
     def __init__(self, game):
         text = 'var foo = "method("+arg1+","+arg2+");'
         target = 'var foo = "method(" + arg1 + "," + arg2 + ");'
-        super().__init__(game, [text], [target], par=8)
+        super().__init__(game, [text], [target], par=13)
 
 
 class ChangeWordSpawner(Spawner):
