@@ -5,7 +5,7 @@ The game helps you practice Vim commands in a fun, interactive way.
 This game focuses on using Vim motions to quickly edit text, rather than presenting puzzles to study.
 As you progress and get better, using fewer keystrokes should happen naturally, and your scores will be higher.
 
-Example Video(https://www.youtube.com/watch?v=hNyf9kntsf4)
+Example Video(https://www.youtube.com/watch?v=yq6urNPjYEA)
 
 This is a work in progress, so please forgive any bugs or missing features.
 
