@@ -13,29 +13,35 @@ class VimMode:
 
 class NormalMode(VimMode):
     NAME = "NORMAL"
+    COUNT = "([1-9][0-9]*)"
 
     def draw(self, items):
         for char, x, y in items:
             pygame.draw.rect(SCREEN, CURSOR_COLOR, (x, y, CHAR_WIDTH, CHAR_HEIGHT))
             draw_text(char, x, y, CURSOR_TEXT_COLOR)
 
+    def is_count(self, command):
+        return match(f"^{NormalMode.COUNT}$", command)
+
     def is_find(self, command):
-        """
-        Equals f, F, t, T, q, ', or "
-        """
-        return match("^[rfFtTq'\"]$", command)
+        return match(f"^({NormalMode.COUNT})?[fFtT]$", command)
+
+    def is_char(self, command):
+        return match("^[rq@'\"]$", command)
 
     def is_operator(self, command):
-        """
-        Startswith d, c, y, <, >, =, and is optionally followed by i or a
-        """
-        return match("^[dcy<>=]([iafFtT])?$", command)
+        return match(f"^[dcy<>=]({NormalMode.COUNT})?([iafFtT])?$", command)
 
     def is_command(self, command):
         return match("^:.*[^\u000D]$|^:$", command)
 
     def is_pending(self, command):
-        if self.is_find(command) or self.is_operator(command) or self.is_command(command):
+        if any([self.is_count(command),
+                self.is_find(command),
+                self.is_char(command),
+                self.is_operator(command),
+                self.is_command(command)
+                ]):
             return True
 
 
