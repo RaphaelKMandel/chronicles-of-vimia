@@ -13,10 +13,12 @@ pygame.display.set_caption("Chronicles of Vimia")
 pygame.key.set_repeat(600, 50)
 
 # Game dimensions
-WIDTH, HEIGHT = 1600, 900
+displayModes = pygame.display.list_modes(depth=0, flags=pygame.FULLSCREEN, display=0)[0]
+WIDTH, HEIGHT = displayModes[0], displayModes[1]
 FPS = 60
 FONT_SIZE = 32
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+flags = pygame.FULLSCREEN
+SCREEN = pygame.display.set_mode((WIDTH,HEIGHT), flags)
 BOTTOM = 5
 
 # Game Objects

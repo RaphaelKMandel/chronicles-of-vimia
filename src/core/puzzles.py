@@ -83,12 +83,38 @@ class Puzzle:
 
     def draw_cursor(self):
         buff_no, row, col, _ = NVIM.funcs.getpos(".")
-        if NVIM.current.buffer == self.buffer.buffer:
-            row -= 1
-            col -= 1
+        if NVIM.current.buffer != self.buffer.buffer:
+            return
+
+        row -= 1
+        col -= 1
+
+        mode = NVIM.funcs.mode()
+
+        # Visual mode selection
+        if mode == "v":
+            start_row, start_col = [p - 1 for p in NVIM.funcs.getpos("v")[1:3]]
+            self.draw_visual_selection(start_row, start_col, row, col)
+        else:
             char = self.get_char(row, col)
             x, y = self.get_coord(row, col)
             self.game.mode.draw([(char, x, y)])
+
+    def draw_visual_selection(self, start_row, start_col, end_row, end_col):
+        """Draw highlighted area between start and end inclusive."""
+        if start_row > end_row or (start_row == end_row and start_col > end_col):
+            start_row, start_col, end_row, end_col = end_row, end_col, start_row, start_col
+
+        items = []
+        for r in range(start_row, end_row + 1):
+            line = self.buffer.lines[r]
+            c_start = start_col if r == start_row else 0
+            c_end = end_col if r == end_row else len(line) - 1
+            for c in range(c_start, c_end + 1):
+                char = self.get_char(r, c)
+                x, y = self.get_coord(r, c)
+                items.append((char, x, y))
+        self.game.mode.draw(items)
 
     def draw_extra(self):
         pass
